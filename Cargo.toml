@@ -1,0 +1,27 @@
+[package]
+name = "rust_writer"
+version = "1.0.0"
+repository = "https://github.com/tsenovilla/rust_writer"
+license = "GPL-3.0"
+rust-version = "1.84.0"
+edition = "2021"
+description = "This crate is useful for editing a Rust file from Rust code. The polkadot-sdk feature enables functions to edit common files in projects using the polkadot-sdk"
+documentation = "https://docs.rs/rust_writer"
+
+[dependencies]
+fs_rollback = "2.0.0"
+prettyplease = "0.2.29"
+proc-macro2 = "1.0.93"
+syn = { version = "2.0.98", features = ["full", "extra-traits"] }
+thiserror = "2.0.11"
+
+[features]
+## Add polkadot-sdk writers
+polkadot-sdk = []
+
+[dev-dependencies]
+tempfile = "3.16.0"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
