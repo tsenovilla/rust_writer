@@ -12,15 +12,12 @@ documentation = "https://docs.rs/rust_writer"
 fs_rollback = "2.0.0"
 prettyplease = "0.2.29"
 proc-macro2 = "1.0.93"
-syn = { version = "2.0.98", features = ["full", "extra-traits"] }
+syn = { version = "2.0.98", features = ["full", "extra-traits", "visit-mut"] }
 thiserror = "2.0.11"
-
-[features]
-## Add polkadot-sdk writers
-polkadot-sdk = []
 
 [dev-dependencies]
 tempfile = "3.16.0"
+syn = { version = "2.0.98", features = ["full", "extra-traits", "visit", "visit-mut"] }
 
 [package.metadata.docs.rs]
 all-features = true
