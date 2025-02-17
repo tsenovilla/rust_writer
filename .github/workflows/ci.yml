@@ -76,7 +76,7 @@ jobs:
           cargo llvm-cov \
           --all-features \
           --codecov \
-          --ignore-filename-regex "*.test*.\.rs$" \
+          --ignore-filename-regex "*.test.*\.rs$" \
           --output-path cov.json
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
