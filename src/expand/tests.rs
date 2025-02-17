@@ -15,8 +15,8 @@ fn type_to_trait_works() {
 		assert!(!visitor.found());
 
 		let type_to_trait: TypeToTrait = ("MyTrait".to_owned(), type_.clone()).into();
-    let expander = Expander::default().to_modify(type_to_trait);
-    expander.expand(ast);
+		let expander = Expander::default().to_modify(type_to_trait);
+		expander.expand(ast);
 
 		let mut visitor = Visitor::default();
 		visitor.with_items(&type_);

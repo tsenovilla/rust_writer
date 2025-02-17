@@ -7,3 +7,4 @@ mod expand;
 pub mod test_builder;
 
 pub use error::Error;
+pub use expand::*;

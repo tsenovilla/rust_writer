@@ -5,7 +5,7 @@ mod tests;
 
 use crate::Error;
 use std::{cmp::PartialEq, fmt::Debug};
-use syn::{visit_mut::VisitMut, File, Item, ItemTrait, TraitItem};
+use syn::{visit_mut::VisitMut, File, ItemTrait, TraitItem};
 
 pub trait ToModify<T: Debug> {
 	fn to_modify(self, modifiers: T) -> Expander<T>;
