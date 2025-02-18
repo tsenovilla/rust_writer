@@ -76,11 +76,11 @@ jobs:
           cargo llvm-cov \
           --all-features \
           --codecov \
-          --ignore-filename-regex "*.test*.\.rs$" \
+          --ignore-filename-regex ".*test.*\.rs$" \
           --output-path cov.json
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: cov
+          files: cov.json
           fail_ci_if_error: true
