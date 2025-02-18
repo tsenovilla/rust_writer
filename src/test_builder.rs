@@ -1,45 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
 use std::collections::HashMap;
-use syn::{visit::Visit, File as syn_File, TraitItem};
+use syn::File as syn_File;
 use tempfile::TempDir;
-
-pub trait WithItems<'a, T> {
-	fn with_items(&mut self, items: &'a T);
-}
-
-pub struct Visitor<'a, T> {
-	found: bool,
-	items: Option<&'a T>,
-}
-
-impl<T> Default for Visitor<'_, T> {
-	fn default() -> Self {
-		Self { found: false, items: None }
-	}
-}
-
-impl<T> Visitor<'_, T> {
-	pub fn found(&self) -> bool {
-		self.found
-	}
-}
-
-impl<'a> WithItems<'a, TraitItem> for Visitor<'a, TraitItem> {
-	fn with_items(&mut self, items: &'a TraitItem) {
-		self.items = Some(items);
-	}
-}
-
-impl<'ast> Visit<'ast> for Visitor<'ast, TraitItem> {
-	fn visit_trait_item(&mut self, item: &'ast TraitItem) {
-		if let Some(trait_item) = self.items {
-			if item == trait_item {
-				self.found = true;
-			}
-		}
-	}
-}
 
 pub struct TestBuilder<'a> {
 	tempdir: TempDir,
@@ -82,6 +45,10 @@ impl<'a> TestBuilder<'a> {
 
 	pub fn get_mut_ast_file(&mut self, key: &'a str) -> Option<&mut syn_File> {
 		self.ast_files.get_mut(key)
+	}
+
+	pub fn get_ast_file(self, key: &'a str) -> Option<syn_File> {
+		self.ast_files.get(key).map(|file| file.clone())
 	}
 
 	pub fn execute<F>(self, test: F)
