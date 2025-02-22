@@ -1,5 +1,8 @@
-[package]
-name = "rust_writer"
+[workspace]
+resolver = "2"
+members = ["rust_writer", "rust_writer_procedural"]
+
+[workspace.package]
 version = "1.0.0"
 repository = "https://github.com/tsenovilla/rust_writer"
 license = "GPL-3.0"
@@ -8,15 +11,11 @@ edition = "2021"
 description = "This crate is useful for editing a Rust file from Rust code. The polkadot-sdk feature enables functions to edit common files in projects using the polkadot-sdk"
 documentation = "https://docs.rs/rust_writer"
 
-[dependencies]
+[workspace.dependencies]
 prettyplease = "0.2.29"
 proc-macro2 = "1.0.93"
-syn = { version = "2.0.98", features = ["full", "extra-traits", "visit", "visit-mut"] }
+syn = "2.0.98"
 thiserror = "2.0.11"
-
-[dev-dependencies]
-tempfile = "3.16.0"
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
+quote = "1.0.38"
+rust_writer = { path = "./rust_writer/" }
+rust_writer_procedural = { path = "./rust_writer_procedural/" }
