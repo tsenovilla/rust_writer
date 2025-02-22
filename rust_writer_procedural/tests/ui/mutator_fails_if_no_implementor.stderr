@@ -1,0 +1,7 @@
+error: Expected at least two implementors.
+ --> tests/ui/mutator_fails_if_no_implementor.rs:5:1
+  |
+5 | #[mutator]
+  | ^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `mutator` (in Nightly builds, run with -Z macro-backtrace for more info)

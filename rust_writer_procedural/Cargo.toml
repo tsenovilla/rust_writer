@@ -15,3 +15,7 @@ syn = { workspace = true, features = ["full", "extra-traits", "parsing"] }
 
 [lib]
 proc-macro = true
+
+[dev-dependencies]
+trybuild = "1.0.103"
+rust_writer = { workspace = true }
