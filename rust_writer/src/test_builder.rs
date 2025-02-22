@@ -37,7 +37,7 @@ macro_rules! add_ast_from_sample_files{
 impl<'a> TestBuilder<'a> {
 	add_ast_from_sample_files! {
 		[with_trait_ast, "trait.rs"],
-	[with_impl_block_ast, "impl_block.rs"]
+	  [with_impl_block_ast, "impl_block.rs"]
 	}
 
 	pub fn get_ref_ast_file(&self, key: &'a str) -> Option<&syn_File> {

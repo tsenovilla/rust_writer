@@ -101,7 +101,6 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 		}
 	}
 
-
 	let impl_to_mutate = quote! {
 		impl<#mutator_lifetime, #generics_params>
 		rust_writer::ast::mutator::ToMutate<#mutator_lifetime, #struct_name<#generics_params>, #implementors_count>
