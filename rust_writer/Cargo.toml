@@ -17,6 +17,7 @@ thiserror = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3.16.0"
+test_builder = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true

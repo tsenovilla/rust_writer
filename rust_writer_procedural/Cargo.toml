@@ -19,3 +19,4 @@ proc-macro = true
 [dev-dependencies]
 trybuild = "1.0.103"
 rust_writer = { workspace = true }
+test_builder = { workspace = true }

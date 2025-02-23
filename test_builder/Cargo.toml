@@ -1,0 +1,15 @@
+[package]
+name = "test_builder"
+version.workspace = true
+repository.workspace = true 
+license.workspace = true
+description = "Test harness for rust_writer crates"
+rust-version.workspace = true
+edition.workspace = true
+
+[dependencies]
+syn = { workspace = true, features = ["full", "extra-traits", "visit", "visit-mut"] }
+thiserror = { workspace = true }
+tempfile = "3.16.0"
+rustilities = { version = "1.0.0", features = ["manifest"] }
+

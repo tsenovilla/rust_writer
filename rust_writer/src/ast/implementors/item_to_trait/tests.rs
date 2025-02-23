@@ -6,9 +6,9 @@ use crate::{
 		finder::{Finder, ToFind},
 		mutator::{Mutator, ToMutate},
 	},
-	test_builder::TestBuilder,
 	Error,
 };
+use test_builder::TestBuilder;
 use syn::parse_quote;
 
 #[test]
