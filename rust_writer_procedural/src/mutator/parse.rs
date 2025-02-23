@@ -19,8 +19,7 @@ impl MutatorDef {
 			InnerAttr::ImplFromNotUnit => (false, true),
 		};
 
-		let implementors =
-			attrs.0.iter().map(|implementor| implementor.clone()).collect::<Vec<_>>();
+		let implementors: Vec<Path> = attrs.0.into_iter().collect();
 
 		Ok(Self { implementors, struct_, unit_struct, impl_from })
 	}

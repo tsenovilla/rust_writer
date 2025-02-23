@@ -19,7 +19,7 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 
 	let mut implementor_generics = Vec::new();
 
-	let implementors_count = Index::from(implementors.iter().count());
+	let implementors_count = Index::from(implementors.len());
 
 	let implementors_indexes: Vec<Index> =
 		implementors.iter().enumerate().map(|(index, _)| Index::from(index)).collect();
@@ -71,10 +71,8 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 		fields.extend(new_struct_fields);
 		struct_.fields =
 			Fields::Named(FieldsNamed { brace_token: Brace::default(), named: fields });
-	} else {
-		if let Fields::Named(ref mut fields) = struct_.fields {
-			fields.named.extend(new_struct_fields);
-		}
+	} else if let Fields::Named(ref mut fields) = struct_.fields {
+		fields.named.extend(new_struct_fields);
 	}
 
 	let mut impl_from_block = quote! {};
@@ -143,5 +141,4 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 		#impl_to_mutate
 	  #impl_visit_mut
 	}
-	.into()
 }

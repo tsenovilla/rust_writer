@@ -15,7 +15,7 @@ pub trait ToFind<'a, T: Debug, const N: usize> {
 	fn to_find(self, finder: &'a T) -> Finder<'a, T, N>;
 }
 
-impl<'a> Default for Finder<'a, EmptyFinder, 1> {
+impl Default for Finder<'_, EmptyFinder, 1> {
 	fn default() -> Self {
 		Self { found: [false], finder: &EmptyFinder }
 	}

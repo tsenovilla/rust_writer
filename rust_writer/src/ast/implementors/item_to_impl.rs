@@ -58,8 +58,8 @@ impl<'a> Visit<'a> for Finder<'a, ItemToImpl<'a>, 1> {
 	fn visit_item_impl(&mut self, item_impl: &'a ItemImpl) {
 		let mut path_segment_finder = PathSegmentFinder {
 			found: [false, false],
-			trait_name: &self.finder.trait_name,
-			implementor_name: &self.finder.implementor_name,
+			trait_name: self.finder.trait_name,
+			implementor_name: self.finder.implementor_name,
 		};
 		path_segment_finder.find_impl_paths(item_impl);
 		if path_segment_finder.found.iter().all(|&x| x) &&
@@ -80,8 +80,8 @@ impl<'a> VisitMut for Mutator<'a, ItemToImpl<'a>, 1> {
 	fn visit_item_impl_mut(&mut self, item_impl: &mut ItemImpl) {
 		let mut path_segment_finder = PathSegmentFinder {
 			found: [false, false],
-			trait_name: &self.mutator.trait_name,
-			implementor_name: &self.mutator.implementor_name,
+			trait_name: self.mutator.trait_name,
+			implementor_name: self.mutator.implementor_name,
 		};
 		path_segment_finder.find_impl_paths(item_impl);
 		if path_segment_finder.found.iter().all(|&x| x) {

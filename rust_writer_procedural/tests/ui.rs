@@ -5,5 +5,5 @@ use trybuild::TestCases;
 #[test]
 fn compile_fail() {
 	let t = TestCases::new();
-	t.compile_fail("tests/ui/*.rs");
+	t.compile_fail("tests/ui/compile_fail/*.rs");
 }
