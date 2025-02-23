@@ -53,10 +53,6 @@ impl<'a> TestBuilder<'a> {
 		self.ast_files.get_mut(key)
 	}
 
-	pub fn get_ast_file(self, key: &'a str) -> Option<syn_File> {
-		self.ast_files.get(key).map(|file| file.clone())
-	}
-
 	pub fn execute<F>(self, test: F)
 	where
 		F: Fn(Self),

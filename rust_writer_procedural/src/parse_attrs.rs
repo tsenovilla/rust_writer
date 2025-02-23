@@ -34,7 +34,8 @@ impl MacroAttrs {
 	pub(crate) fn validate_struct(&self, item_struct: &mut ItemStruct) -> Result<InnerAttr> {
 		let already_expanded = item_struct
 			.attrs
-			.contains(&parse_quote!(#[rust_writer_procedural::already_expanded]));
+			.contains(&parse_quote!(#[rust_writer_procedural::already_expanded])) ||
+			item_struct.attrs.contains(&parse_quote!(#[already_expanded]));
 		let impl_from = item_struct.attrs.contains(&parse_quote!(#[impl_from]));
 		match (&item_struct.fields, already_expanded, impl_from) {
 			(Fields::Unit, false, false) => Ok(InnerAttr::Unit),
