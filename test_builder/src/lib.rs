@@ -29,7 +29,6 @@ macro_rules! add_ast_from_sample_files{
          .join("test_builder")
          .join("sample_files")
          .join($file);
-        println!("{:?}", sample_file_path);
        let ast = syn::parse_file(
          &std::fs::read_to_string(&sample_file_path).expect("File should be readable; qed;")
        ).expect("File should be parsed; qed;");

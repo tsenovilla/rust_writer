@@ -1,0 +1,5 @@
+error: expected `,`
+ --> tests/ui/compile_fail/mutator_fails_if_implementors_not_list_of_path.rs:5:18
+  |
+5 | #[mutator(a,b,c,d(e,f,g))]
+  |                  ^

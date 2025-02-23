@@ -8,8 +8,8 @@ use crate::{
 	},
 	Error,
 };
-use test_builder::TestBuilder;
 use syn::parse_quote;
+use test_builder::TestBuilder;
 
 #[test]
 fn item_to_trait_finder_find_item_if_present() {

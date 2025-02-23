@@ -1,0 +1,17 @@
+error[E0599]: no method named `to_mutate` found for struct `Mutator` in the current scope
+ --> tests/ui/compile_fail/mutator_fails_if_to_mutate_not_in_scope.rs:5:1
+  |
+5 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `Mutator<'_, EmptyMutator, 1>`
+  |
+ ::: $WORKSPACE/rust_writer/src/ast/mutator.rs
+  |
+  |     fn to_mutate(self, mutator: &'a T) -> Mutator<'a, T, N>;
+  |        --------- the method is available for `Mutator<'_, EmptyMutator, 1>` here
+  |
+  = help: items from traits can only be used if the trait is in scope
+  = note: this error originates in the attribute macro `mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: trait `ToMutate` which provides `to_mutate` is implemented but not in scope; perhaps you want to import it
+  |
+3  + use rust_writer::ast::mutator::ToMutate;
+   |
