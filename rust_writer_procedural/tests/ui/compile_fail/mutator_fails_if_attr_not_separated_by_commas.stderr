@@ -1,0 +1,5 @@
+error: expected `,`
+ --> tests/ui/compile_fail/mutator_fails_if_attr_not_separated_by_commas.rs:5:58
+  |
+5 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>; local = A)]
+  |                                                          ^

@@ -1,21 +1,44 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use crate::mutator::parse::MutatorDef;
+use crate::mutator::parse::{ImplMutatorDef, MutatorDef};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
 	parse_quote, punctuated::Punctuated, token::Brace, Field, Fields, FieldsNamed, GenericParam,
-	Ident, Index, Lifetime, PathArguments, Token, Type, WhereClause, WherePredicate,
+	Generics, Ident, Index, Lifetime, PathArguments, Token, Type, WhereClause, WherePredicate,
 };
 
+fn extract_generics(generics: &Generics) -> (Punctuated<GenericParam, Token![,]>, WhereClause) {
+	let mut where_clauses: Punctuated<WherePredicate, Token![,]> = Punctuated::new();
+	let generics_idents: Punctuated<GenericParam, Token![,]> = generics
+		.params
+		.iter()
+		.map(|item| {
+			if let GenericParam::Type(generic_type) = item {
+				let ident = &generic_type.ident;
+				let bounds = &generic_type.bounds;
+				where_clauses.push(parse_quote! {#ident: #bounds});
+				GenericParam::Type(parse_quote! { #ident })
+			} else {
+				item.clone()
+			}
+		})
+		.collect();
+
+	let mut where_clause: WhereClause =
+		generics.where_clause.clone().unwrap_or(parse_quote! {where});
+
+	where_clause.predicates.extend(where_clauses);
+	(generics_idents, where_clause)
+}
+
 pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
-	let MutatorDef { implementors, mut struct_, unit_struct, impl_from } = def;
+	let MutatorDef { crate_implementors, local_implementors, mut struct_, unit_struct, impl_from } =
+		def;
 
 	let struct_vis = &struct_.vis;
 	let struct_name = &struct_.ident;
 
-	let empty_mutator_wrapper_name =
-		Ident::new(&(struct_.ident.to_string() + "EmptyMutatorWrapper"), Span::call_site());
 	let mutator_wrapper_name =
 		Ident::new(&(struct_.ident.to_string() + "MutatorWrapper"), Span::call_site());
 
@@ -25,12 +48,50 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 	let mut implementors_generics = Vec::new();
 	let mut implementors_lifetimes = Vec::new();
 
-	let implementors_count = Index::from(implementors.len());
+	let implementors_count = Index::from(crate_implementors.len() + local_implementors.len());
 
-	let implementors_indexes: Vec<Index> =
-		implementors.iter().enumerate().map(|(index, _)| Index::from(index)).collect();
+	let crate_implementors_indexes: Vec<Index> =
+		(0..crate_implementors.len()).map(Index::from).collect();
 
-	let implementors_struct_names: Vec<Ident> = implementors
+	let local_implementors_indexes: Vec<Index> = (crate_implementors.len()..
+		crate_implementors.len() + local_implementors.len())
+		.map(Index::from)
+		.collect();
+
+	let crate_implementors_struct_names: Vec<Ident> = crate_implementors
+		.iter()
+		.map(|implementor| {
+			let last_implementor_segment = implementor
+				.segments
+				.last()
+				.expect("At this point, implementors are valid paths; qed;");
+
+			if let PathArguments::AngleBracketed(ref generics) = last_implementor_segment.arguments
+			{
+				generics.args.iter().for_each(|argument| {
+					let generic_param: GenericParam = parse_quote!(#argument);
+					match generic_param {
+						GenericParam::Lifetime(_) => {
+							if !implementors_lifetimes.contains(&generic_param) {
+								implementors_lifetimes.push(generic_param);
+							}
+						},
+						_ =>
+							if !implementors_generics.contains(&generic_param) {
+								implementors_generics.push(generic_param);
+							},
+					}
+				})
+			}
+
+			Ident::new(
+				&last_implementor_segment.ident.to_string().to_lowercase(),
+				Span::call_site(),
+			)
+		})
+		.collect();
+
+	let local_implementors_struct_names: Vec<Ident> = local_implementors
 		.iter()
 		.map(|implementor| {
 			let last_implementor_segment = implementor
@@ -69,33 +130,17 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 
 	struct_.generics.params.extend(implementors_generics);
 
-	let mut where_clauses: Punctuated<WherePredicate, Token![,]> = Punctuated::new();
-	let generics_idents: Punctuated<GenericParam, Token![,]> = struct_
-		.generics
-		.params
+	let (generics_idents, where_clause) = extract_generics(&struct_.generics);
+
+	let mut new_struct_fields: Vec<Field> = crate_implementors_struct_names
 		.iter()
-		.map(|item| {
-			if let GenericParam::Type(generic_type) = item {
-				let ident = &generic_type.ident;
-				let bounds = &generic_type.bounds;
-				where_clauses.push(parse_quote! {#ident: #bounds});
-				GenericParam::Type(parse_quote! { #ident })
-			} else {
-				item.clone()
-			}
-		})
-		.collect();
-
-	let mut where_clause: WhereClause =
-		struct_.generics.where_clause.clone().unwrap_or(parse_quote! {where});
-
-	where_clause.predicates.extend(where_clauses);
-
-	let new_struct_fields: Vec<Field> = implementors_struct_names
-		.iter()
-		.zip(implementors)
+		.zip(crate_implementors)
 		.map(|(name, implementor)| parse_quote!(#struct_vis #name: #implementor))
 		.collect();
+
+	local_implementors_struct_names.iter().zip(local_implementors).for_each(
+		|(name, implementor)| new_struct_fields.push(parse_quote!(#struct_vis #name: #implementor)),
+	);
 
 	if unit_struct {
 		let mut fields: Punctuated<Field, Token![,]> = Punctuated::new();
@@ -130,24 +175,7 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 		}
 	}
 
-	let mutator_wrappers = quote! {
-		#struct_vis struct #empty_mutator_wrapper_name<#mutator_lifetime>(
-		  rust_writer::ast::mutator::Mutator<
-			  #mutator_lifetime,
-			  rust_writer::ast::mutator::EmptyMutator,
-			  #one
-		  >
-	   );
-
-	  impl<#mutator_lifetime> From<
-	   rust_writer::ast::mutator::Mutator<#mutator_lifetime,rust_writer::ast::mutator::EmptyMutator, #one>
-	  > for #empty_mutator_wrapper_name<#mutator_lifetime>{
-		  #struct_vis fn from(input: rust_writer::ast::mutator::Mutator<#mutator_lifetime,rust_writer::ast::mutator::EmptyMutator,#one>)
-		  -> Self{
-			  Self(input)
-		  }
-	  }
-
+	let mutator_wrapper = quote! {
 		#struct_vis struct #mutator_wrapper_name<#mutator_lifetime, #generics_idents>(
 		  #struct_vis rust_writer::ast::mutator::Mutator<
 			  #mutator_lifetime,
@@ -173,7 +201,7 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 	let impl_to_mutate = quote! {
 		impl<#mutator_lifetime, #generics_idents>
 		rust_writer::ast::mutator::ToMutate<#mutator_lifetime, #struct_name<#generics_idents>, #implementors_count>
-		for #empty_mutator_wrapper_name<'_>
+		for rust_writer::ast::mutator::Mutator<'_, rust_writer::ast::mutator::EmptyMutator, #one>
 	  #where_clause
 	  {
 			fn to_mutate(self, mutator: &#mutator_lifetime #struct_name<#generics_idents>)
@@ -196,12 +224,36 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 			fn visit_file_mut(&mut self, file: &mut syn::File){
 			#(
 				  let mut mutator = rust_writer::ast::mutator::Mutator::default()
-					  .to_mutate(&self.0.mutator.#implementors_struct_names);
+					  .to_mutate(&self.0.mutator.#crate_implementors_struct_names);
 				  mutator.visit_file_mut(file);
-				  self.0.mutated[#implementors_indexes] = mutator.mutated.iter().all(|&x| x);
+				  self.0.mutated[#crate_implementors_indexes] = mutator.mutated.iter().all(|&x| x);
 			)*
+
+		  #(
+				  self.0.mutator.#local_implementors_struct_names.clone().visit_file_mut(file);
+				  self.0.mutated[#local_implementors_indexes] = self.0.mutator
+				  .#local_implementors_struct_names.mutated.iter().all(|&x| x);
+		  )*
 		 }
 		}
+	};
+
+	let impl_mutate = quote! {
+	  impl<#mutator_lifetime, #generics_idents>
+	  #mutator_wrapper_name<#mutator_lifetime, #generics_idents>
+	  #where_clause
+	  {
+		  fn mutate(mut self, file: &mut syn::File) -> Result<(), rust_writer::Error>{
+			  self.visit_file_mut(file);
+
+			  if self.0.mutated.iter().all(|&x| x){
+				  Ok(())
+			  } else {
+				  Err(rust_writer::Error::Descriptive(format!("Cannot mutate using Mutator: {:?}", self.0.mutator)))
+			  }
+
+		  }
+	  }
 	};
 
 	quote! {
@@ -209,8 +261,38 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 		#[derive(Debug, Clone)]
 		#struct_
 		#impl_from_block
-	  #mutator_wrappers
+	  #mutator_wrapper
 		#impl_to_mutate
 	  #impl_visit_mut
+	  #impl_mutate
+	}
+}
+
+pub(crate) fn expand_impl_mutator(def: ImplMutatorDef) -> TokenStream {
+	let ImplMutatorDef { struct_ } = def;
+
+	let struct_name = &struct_.ident;
+
+	let (generics_idents, where_clause) = extract_generics(&struct_.generics);
+
+	let impl_mutate = quote! {
+	  impl<#generics_idents>
+	  #struct_name<#generics_idents>
+	  #where_clause
+	  {
+		  fn mutate(mut self, file: &mut syn::File) -> Result<(), rust_writer::Error>{
+			  self.visit_file_mut(file);
+
+			  if self.mutated.iter().all(|&x| x){
+				  Ok(())
+			  } else {
+				  Err(rust_writer::Error::Descriptive(format!("Cannot mutate using Mutator: {:?}", self)))
+			  }
+		  }
+	  }
+	};
+
+	quote! {
+	  #impl_mutate
 	}
 }

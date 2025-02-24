@@ -1,117 +1,26 @@
 error[E0277]: the trait bound `A: Clone` is not satisfied
- --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:9:10
-  |
-9 | impl<'a> ToMutate<'a, A, 1> for Mutator<'_, EmptyMutator, 1> {
-  |          ^^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `A`
-  |
-note: required by a bound in `ToMutate`
- --> $WORKSPACE/rust_writer/src/ast/mutator.rs
-  |
-  | pub trait ToMutate<'a, T: Debug + Clone, const N: usize> {
-  |                                   ^^^^^ required by this bound in `ToMutate`
-help: consider annotating `A` with `#[derive(Clone)]`
-  |
-7  + #[derive(Clone)]
-8  | struct A;
+  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:15:1
    |
-
-error[E0277]: the trait bound `A: Clone` is not satisfied
-  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:21:19
-   |
-21 | impl ToyTrait for Mutator<'_, A, 1>{
-   |                   ^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `A`
-   |
-note: required by a bound in `Mutator`
-  --> $WORKSPACE/rust_writer/src/ast/mutator.rs
-   |
-   | pub struct Mutator<'a, T: Debug + Clone, const N: usize> {
-   |                                   ^^^^^ required by this bound in `Mutator`
-help: consider annotating `A` with `#[derive(Clone)]`
-   |
-7  + #[derive(Clone)]
-8  | struct A;
-   |
-
-error[E0277]: the trait bound `A: Clone` is not satisfied
-  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:10:40
-   |
-10 |     fn to_mutate(self, mutator: &'a A) -> Mutator<'a, A, 1> {
-   |                                           ^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `A`
-   |
-note: required by a bound in `Mutator`
-  --> $WORKSPACE/rust_writer/src/ast/mutator.rs
-   |
-   | pub struct Mutator<'a, T: Debug + Clone, const N: usize> {
-   |                                   ^^^^^ required by this bound in `Mutator`
-help: consider annotating `A` with `#[derive(Clone)]`
-   |
-7  + #[derive(Clone)]
-8  | struct A;
-   |
-
-error[E0277]: the trait bound `A: Clone` is not satisfied
-  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:22:28
-   |
-22 |     fn visit_file_mut(&mut self, _file: &mut syn::File){}
-   |                            ^^^^ the trait `Clone` is not implemented for `A`
-   |
-note: required by a bound in `Mutator`
-  --> $WORKSPACE/rust_writer/src/ast/mutator.rs
-   |
-   | pub struct Mutator<'a, T: Debug + Clone, const N: usize> {
-   |                                   ^^^^^ required by this bound in `Mutator`
-help: consider annotating `A` with `#[derive(Clone)]`
-   |
-7  + #[derive(Clone)]
-8  | struct A;
-   |
-
-error[E0277]: the trait bound `A: Clone` is not satisfied
-  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:11:36
-   |
-11 |         Mutator { mutated: self.mutated, mutator }
-   |                                          ^^^^^^^ the trait `Clone` is not implemented for `A`
-   |
-note: required by a bound in `Mutator`
-  --> $WORKSPACE/rust_writer/src/ast/mutator.rs
-   |
-   | pub struct Mutator<'a, T: Debug + Clone, const N: usize> {
-   |                                   ^^^^^ required by this bound in `Mutator`
-help: consider annotating `A` with `#[derive(Clone)]`
-   |
-7  + #[derive(Clone)]
-8  | struct A;
-   |
-
-error[E0277]: the trait bound `A: Clone` is not satisfied
-  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:25:1
-   |
-25 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, A)]
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `A`
+15 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, local = A)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `A`
    |
    = note: this error originates in the derive macro `Clone` (in Nightly builds, run with -Z macro-backtrace for more info)
 help: consider annotating `A` with `#[derive(Clone)]`
    |
-7  + #[derive(Clone)]
-8  | struct A;
+9  + #[derive(Clone)]
+10 | struct A {
    |
 
-error[E0277]: the trait bound `A: Clone` is not satisfied
-  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:25:1
+error[E0599]: no method named `clone` found for struct `A` in the current scope
+  --> tests/ui/compile_fail/mutator_fails_if_implementor_isnt_clone.rs:15:1
    |
-25 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, A)]
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `A`
+9  | struct A {
+   | -------- method `clone` not found for this struct
+...
+15 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, local = A)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `A`
    |
-note: required by a bound in `to_mutate`
-  --> $WORKSPACE/rust_writer/src/ast/mutator.rs
-   |
-   | pub trait ToMutate<'a, T: Debug + Clone, const N: usize> {
-   |                                   ^^^^^ required by this bound in `ToMutate::to_mutate`
-   |     fn to_mutate(self, mutator: &'a T) -> Mutator<'a, T, N>;
-   |        --------- required by a bound in this associated function
+   = help: items from traits can only be used if the trait is implemented and in scope
+   = note: the following trait defines an item `clone`, perhaps you need to implement it:
+           candidate #1: `Clone`
    = note: this error originates in the attribute macro `mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
-help: consider annotating `A` with `#[derive(Clone)]`
-   |
-7  + #[derive(Clone)]
-8  | struct A;
-   |

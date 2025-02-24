@@ -2,11 +2,11 @@
 
 use rust_writer_procedural::mutator;
 
-#[mutator(a,b,c)]
-enum SomeEnum{
-    A,
-    B,
-    C
+#[mutator(a, b, c)]
+enum SomeEnum {
+	A,
+	B,
+	C,
 }
 
-fn main(){}
+fn main() {}

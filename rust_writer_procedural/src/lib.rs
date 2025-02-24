@@ -11,6 +11,11 @@ pub fn mutator(attrs: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
+pub fn impl_mutator(_: TokenStream, item: TokenStream) -> TokenStream {
+	mutator::impl_mutator(item)
+}
+
+#[proc_macro_attribute]
 pub fn already_expanded(_: TokenStream, input: TokenStream) -> TokenStream {
 	input
 }

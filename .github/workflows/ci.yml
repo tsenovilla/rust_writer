@@ -41,6 +41,8 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     needs: [check, fmt]
+    env: 
+      SAMPLE_FILES_PATH: "$(pwd)/test_builder/sample_files"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,6 +65,8 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     needs: tests
+    env:
+      SAMPLE_FILES_PATH: "$(pwd)/test_builder/sample_files"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

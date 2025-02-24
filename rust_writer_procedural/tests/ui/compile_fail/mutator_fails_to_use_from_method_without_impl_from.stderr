@@ -1,7 +1,7 @@
 error[E0277]: the trait bound `SomeStruct<'_>: From<(ItemToTrait<'_>, ItemToImpl<'_>)>` is not satisfied
-  --> tests/ui/compile_fail/mutator_fails_to_use_from_method_without_impl_from.rs:25:66
+  --> tests/ui/compile_fail/mutator_fails_to_use_from_method_without_impl_from.rs:28:63
    |
-25 |     let _some_struct: SomeStruct = (item_to_trait, item_to_impl).into();
+28 |     let _some_struct: SomeStruct = (item_to_trait, item_to_impl).into();
    |                                                                  ^^^^ the trait `From<(ItemToTrait<'_>, ItemToImpl<'_>)>` is not implemented for `SomeStruct<'_>`
    |
    = note: required for `(ItemToTrait<'_>, ItemToImpl<'_>)` to implement `Into<SomeStruct<'_>>`

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 use syn::File as syn_File;
 use tempfile::TempDir;
 
@@ -20,14 +20,8 @@ macro_rules! add_ast_from_sample_files{
  ($([$name: ident, $file: literal]),*) => {
    $(
      pub fn $name(mut self) -> Self{
-       let sample_file_path = rustilities::manifest::find_workspace_manifest(
-            std::env::current_dir().expect("Returns calling crate; qed;")
-         )
-         .expect("This should return the workspace manifest; qed;")
-         .parent()
-         .expect("This should return the workspace root; qed;")
-         .join("test_builder")
-         .join("sample_files")
+        let sample_file_path = Path::new(&std::env::var("SAMPLE_FILES_PATH")
+         .expect("SAMPLE_FILES_PATH must be defined; qed;"))
          .join($file);
        let ast = syn::parse_file(
          &std::fs::read_to_string(&sample_file_path).expect("File should be readable; qed;")
@@ -42,7 +36,8 @@ macro_rules! add_ast_from_sample_files{
 impl<'a> TestBuilder<'a> {
 	add_ast_from_sample_files! {
 		[with_trait_ast, "trait.rs"],
-	  [with_impl_block_ast, "impl_block.rs"]
+	  [with_impl_block_ast, "impl_block.rs"],
+	[with_trait_and_impl_block_ast, "trait_and_impl_block.rs"]
 	}
 
 	pub fn get_ref_ast_file(&self, key: &'a str) -> Option<&syn_File> {

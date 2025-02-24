@@ -2,7 +2,7 @@
 
 use rust_writer_procedural::mutator;
 
-#[mutator("hello_world")]
+#[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, "hello world")]
 struct SomeStruct;
 
-fn main(){}
+fn main() {}

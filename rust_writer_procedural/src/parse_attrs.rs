@@ -4,14 +4,37 @@ use syn::{
 	parse::{Parse, ParseStream},
 	parse_quote,
 	punctuated::Punctuated,
-	Error, Fields, FieldsNamed, ItemStruct, Path, Result, Token, Type,
+	Error, Fields, FieldsNamed, Ident, ItemStruct, Path, Result, Token, Type,
 };
 
-pub(crate) struct MacroAttrs(pub(crate) Punctuated<Path, Token![,]>);
+pub(crate) enum MacroAttr {
+	CrateImplementor(Path),
+	LocalImplementor(Path),
+}
+
+impl Parse for MacroAttr {
+	fn parse(input: ParseStream) -> Result<Self> {
+		if input.peek(Ident) && input.peek2(Token![=]) {
+			let ident: Ident = input.parse()?;
+			let _eq: Token![=] = input.parse()?;
+			let path: Path = input.parse()?;
+			if ident == "local" {
+				Ok(MacroAttr::LocalImplementor(path))
+			} else {
+				Err(Error::new(ident.span(), "Expected 'local' as key"))
+			}
+		} else {
+			let path: Path = input.parse()?;
+			Ok(MacroAttr::CrateImplementor(path))
+		}
+	}
+}
+
+pub(crate) struct MacroAttrs(pub(crate) Punctuated<MacroAttr, Token![,]>);
 
 impl Parse for MacroAttrs {
 	fn parse(input: ParseStream) -> Result<Self> {
-		let implementors = input.parse_terminated(Path::parse, Token![,])?;
+		let implementors = input.parse_terminated(MacroAttr::parse, Token![,])?;
 		if implementors.len() < 2 {
 			Err(Error::new(input.span(), "Expected at least two implementors."))
 		} else {
@@ -56,7 +79,14 @@ impl MacroAttrs {
 					})
 					.collect::<Result<Vec<&Path>>>()?;
 
-				let implementors_vec: Vec<&Path> = self.0.iter().collect();
+				let implementors_vec: Vec<&Path> = self
+					.0
+					.iter()
+					.map(|macro_attr| match macro_attr {
+						MacroAttr::CrateImplementor(path) => path,
+						MacroAttr::LocalImplementor(path) => path,
+					})
+					.collect();
 
 				if struct_values.len() != implementors_vec.len() ||
 					struct_values.iter().any(|value| !implementors_vec.contains(value))

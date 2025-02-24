@@ -1,0 +1,14 @@
+error[E0277]: `SomeStruct` doesn't implement `Debug`
+ --> tests/ui/compile_fail/impl_mutator_fails_if_struct_isnt_debug.rs:6:1
+  |
+6 | #[impl_mutator]
+  | ^^^^^^^^^^^^^^^ `SomeStruct` cannot be formatted using `{:?}`
+  |
+  = help: the trait `Debug` is not implemented for `SomeStruct`
+  = note: add `#[derive(Debug)]` to `SomeStruct` or manually `impl Debug for SomeStruct`
+  = note: this error originates in the macro `$crate::__export::format_args` which comes from the expansion of the attribute macro `impl_mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider annotating `SomeStruct` with `#[derive(Debug)]`
+  |
+7 + #[derive(Debug)]
+8 | struct SomeStruct {
+  |
