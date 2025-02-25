@@ -74,7 +74,9 @@ jobs:
         uses: actions/checkout@v4
       - uses: "./.github/actions/init"
       - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov@0.6.16
       - name: Set sample files path env variable
         run: echo "SAMPLE_FILES_PATH=$(pwd)/test_builder/sample_files" >> $GITHUB_ENV
       - name: Generate code coverage
