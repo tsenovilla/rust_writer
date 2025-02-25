@@ -73,8 +73,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - uses: "./.github/actions/init"
-      - name: Install nightly llvm-tools-preview
-        run: rustup toolchain install nightly --component llvm-tools-preview
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
       - name: Set sample files path env variable
