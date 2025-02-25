@@ -18,9 +18,7 @@ syn = { workspace = true, features = ["full", "extra-traits", "parsing"] }
 proc-macro = true
 
 [dev-dependencies]
-trybuild = "1.0.103"
+trybuild = "=1.0.96"
 rust_writer = { workspace = true }
 test_builder = { workspace = true }
 
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage,coverage_nightly)'] }
