@@ -76,6 +76,7 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@v2
         with:
+          # This version together with trybuil 1.0.96 generates cov for UI tests
           tool: cargo-llvm-cov@0.6.16
       - name: Set sample files path env variable
         run: echo "SAMPLE_FILES_PATH=$(pwd)/test_builder/sample_files" >> $GITHUB_ENV
