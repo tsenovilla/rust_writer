@@ -61,7 +61,7 @@ fn item_to_trait_mutate_works() {
 		let mut finder = Finder::default().to_find(&item_to_trait);
 		assert!(!finder.find(ast));
 
-		let mutator = Mutator::default().to_mutate(&item_to_trait);
+		let mut mutator = Mutator::default().to_mutate(&item_to_trait);
 		assert!(mutator.mutate(ast).is_ok());
 
 		let mut finder = Finder::default().to_find(&item_to_trait);
@@ -81,7 +81,7 @@ fn item_to_trait_mutate_fails_if_cannot_find_trait() {
 		let mut finder = Finder::default().to_find(&item_to_trait);
 		assert!(!finder.find(ast));
 
-		let mutator = Mutator::default().to_mutate(&item_to_trait);
+		let mut mutator = Mutator::default().to_mutate(&item_to_trait);
 		assert!(matches!(
 			mutator.mutate(ast),
 			Err(Error::Descriptive(msg))

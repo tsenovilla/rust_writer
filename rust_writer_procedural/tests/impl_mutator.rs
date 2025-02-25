@@ -18,10 +18,11 @@ struct SomeStruct<'a, T: Clone + std::fmt::Debug> {
 	mutated: [bool; 1],
 	trait_name: &'a str,
 	item_trait: TraitItem,
-  just_extra_data: T
+	#[allow(dead_code)]
+	just_extra_data: T,
 }
 
-impl<'a, T:Clone + std::fmt::Debug> VisitMut for SomeStruct<'a, T> {
+impl<'a, T: Clone + std::fmt::Debug> VisitMut for SomeStruct<'a, T> {
 	fn visit_item_trait_mut(&mut self, item_trait: &mut ItemTrait) {
 		if item_trait.ident == self.trait_name {
 			self.mutated[0] = true;
@@ -30,13 +31,14 @@ impl<'a, T:Clone + std::fmt::Debug> VisitMut for SomeStruct<'a, T> {
 	}
 }
 
-fn main() {
+#[test]
+fn impl_mutator_struct_mutates() {
 	TestBuilder::default().with_trait_ast().execute(|mut builder| {
-		let some_struct = SomeStruct {
+		let mut some_struct = SomeStruct {
 			mutated: [false],
 			trait_name: "MyTrait",
 			item_trait: TraitItem::Type(parse_quote! {type Something: From<String>;}),
-      just_extra_data: 1u8
+			just_extra_data: 1u8,
 		};
 
 		let item_to_trait: ItemToTrait =
@@ -52,13 +54,16 @@ fn main() {
 		let mut finder = Finder::default().to_find(&item_to_trait);
 		assert!(finder.find(ast));
 	});
+}
 
+#[test]
+fn impl_mutator_struct_fails_if_unable_to_mutate() {
 	TestBuilder::default().with_trait_ast().execute(|mut builder| {
-		let some_struct = SomeStruct {
+		let mut some_struct = SomeStruct {
 			mutated: [false],
 			trait_name: "Trait",
 			item_trait: TraitItem::Type(parse_quote! {type Something: From<String>;}),
-      just_extra_data: 1u8
+			just_extra_data: 1u8,
 		};
 
 		let item_to_trait: ItemToTrait =

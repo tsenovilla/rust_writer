@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
+use crate::helpers;
 use syn::{
 	parse::{Parse, ParseStream},
 	parse_quote,
@@ -21,7 +22,7 @@ impl Parse for MacroAttr {
 			if ident == "local" {
 				Ok(MacroAttr::LocalImplementor(path))
 			} else {
-				Err(Error::new(ident.span(), "Expected 'local' as key"))
+				Err(Error::new(ident.span(), "Expected 'local' as key."))
 			}
 		} else {
 			let path: Path = input.parse()?;
@@ -45,13 +46,25 @@ impl Parse for MacroAttrs {
 
 #[derive(PartialEq)]
 pub(crate) enum InnerAttr {
-	Unit,
-	NotUnit,
+	Nothing,
+	AlreadyExpanded,
 	ImplFrom,
-	ImplFromNotUnit,
 }
 
-const IMPL_FROM_ERR_MSG: &str = "#[impl_from] is only allowed in structs annotated with #[mutator]/#[finder] at most once or unit structs annotated with #[mutator] and #[finder] using the same implementors.";
+type AlreadyExpandedStruct = bool;
+type StructNeedsImplFrom = bool;
+
+impl InnerAttr {
+	pub(crate) fn parse(self) -> (AlreadyExpandedStruct, StructNeedsImplFrom) {
+		match self {
+			InnerAttr::Nothing => (false, false),
+			InnerAttr::AlreadyExpanded => (true, false),
+			InnerAttr::ImplFrom => (false, true),
+		}
+	}
+}
+
+const IMPL_FROM_ERR_MSG: &str = "#[impl_from] is only allowed in structs annotated with #[mutator]/#[finder] at most once or structs annotated with #[mutator] and #[finder] using the same implementors.";
 
 impl MacroAttrs {
 	pub(crate) fn validate_struct(&self, item_struct: &mut ItemStruct) -> Result<InnerAttr> {
@@ -59,18 +72,29 @@ impl MacroAttrs {
 			.attrs
 			.contains(&parse_quote!(#[rust_writer_procedural::already_expanded])) ||
 			item_struct.attrs.contains(&parse_quote!(#[already_expanded]));
+
+		let already_impl_from = item_struct
+			.attrs
+			.contains(&parse_quote!(#[rust_writer_procedural::already_impl_from])) ||
+			item_struct.attrs.contains(&parse_quote!(#[already_impl_from]));
+
 		let impl_from = item_struct.attrs.contains(&parse_quote!(#[impl_from]));
-		match (&item_struct.fields, already_expanded, impl_from) {
-			(Fields::Unit, false, false) => Ok(InnerAttr::Unit),
-			(Fields::Unit, false, true) => {
-				item_struct_remove_impl_from_attr(item_struct);
-				Ok(InnerAttr::ImplFrom)
-			},
-			(Fields::Unit, true, _) => Err(Error::new(
+
+		match (&item_struct.fields, already_expanded, already_impl_from, impl_from) {
+			(_, _, true, true) => Err(Error::new(
+				item_struct.ident.span(),
+				"Cannot use #[impl_from] in an struct annotated with #[already_impl_from]",
+			)),
+			(Fields::Unit, true, _, _) => Err(Error::new(
 				item_struct.ident.span(),
 				"Cannot use #[already_expanded] attribute in an unit struct",
 			)),
-			(Fields::Named(FieldsNamed { named, .. }), true, true) => {
+			(Fields::Unit, _, _, false) => Ok(InnerAttr::Nothing),
+			(Fields::Unit, _, _, true) => {
+				helpers::remove_impl_from_attr(item_struct);
+				Ok(InnerAttr::ImplFrom)
+			},
+			(Fields::Named(FieldsNamed { named, .. }), true, true, _) => {
 				let struct_values = named
 					.iter()
 					.map(|field| match &field.ty {
@@ -93,13 +117,13 @@ impl MacroAttrs {
 				{
 					return Err(Error::new(item_struct.ident.span(), IMPL_FROM_ERR_MSG));
 				}
-				item_struct_remove_impl_from_attr(item_struct);
-				Ok(InnerAttr::ImplFromNotUnit)
+				Ok(InnerAttr::AlreadyExpanded)
 			},
-			(Fields::Named(_), _, false) => Ok(InnerAttr::NotUnit),
-			(Fields::Named(_), false, true) => {
-				item_struct_remove_impl_from_attr(item_struct);
-				Ok(InnerAttr::ImplFromNotUnit)
+			(Fields::Named(_), true, _, false) => Ok(InnerAttr::AlreadyExpanded),
+			(Fields::Named(_), false, _, false) => Ok(InnerAttr::Nothing),
+			(Fields::Named(_), _, _, true) => {
+				helpers::remove_impl_from_attr(item_struct);
+				Ok(InnerAttr::ImplFrom)
 			},
 			_ => Err(Error::new(
 				item_struct.ident.span(),
@@ -107,13 +131,4 @@ impl MacroAttrs {
 			)),
 		}
 	}
-}
-
-fn item_struct_remove_impl_from_attr(struct_: &mut ItemStruct) {
-	struct_.attrs = struct_
-		.attrs
-		.clone()
-		.into_iter()
-		.filter(|attr| !attr.path().is_ident("impl_from"))
-		.collect()
 }

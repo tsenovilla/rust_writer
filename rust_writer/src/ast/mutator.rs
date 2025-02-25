@@ -7,6 +7,7 @@ use syn::{visit_mut::VisitMut, File};
 #[derive(Debug, Clone)]
 pub struct EmptyMutator;
 
+#[derive(Debug, Clone)]
 pub struct Mutator<'a, T: Debug + Clone, const N: usize> {
 	pub mutated: [bool; N],
 	pub mutator: &'a T,
@@ -27,7 +28,7 @@ where
 	T: Debug + Clone,
 	Mutator<'a, T, N>: VisitMut,
 {
-	pub fn mutate(mut self, ast: &mut File) -> Result<(), Error> {
+	pub fn mutate(&mut self, ast: &mut File) -> Result<(), Error> {
 		self.visit_file_mut(ast);
 
 		if self.mutated.iter().all(|&x| x) {

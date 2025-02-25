@@ -110,7 +110,7 @@ fn item_to_impl_mutate_works() {
 		let mut finder = Finder::default().to_find(&item_to_impl);
 		assert!(!finder.find(ast));
 
-		let mutator = Mutator::default().to_mutate(&item_to_impl);
+		let mut mutator = Mutator::default().to_mutate(&item_to_impl);
 		assert!(mutator.mutate(ast).is_ok());
 
 		let mut finder = Finder::default().to_find(&item_to_impl);
@@ -133,7 +133,7 @@ fn item_to_impl_mutate_fails_if_cannot_find_impl_block() {
 		let mut finder = Finder::default().to_find(&item_to_impl);
 		assert!(!finder.find(ast));
 
-		let mutator = Mutator::default().to_mutate(&item_to_impl);
+		let mut mutator = Mutator::default().to_mutate(&item_to_impl);
 		assert!(matches!(
 			mutator.mutate(ast),
 			Err(Error::Descriptive(msg))

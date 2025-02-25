@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
 use crate::{
+	finder::parse::{FinderDef, ImplFinderDef},
 	helpers::{self, ResolvedImplementors},
-	mutator::parse::{ImplMutatorDef, MutatorDef},
 };
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
@@ -11,8 +11,8 @@ use syn::{
 	Lifetime, Token, Type,
 };
 
-pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
-	let MutatorDef {
+pub(crate) fn expand_finder(def: FinderDef) -> TokenStream {
+	let FinderDef {
 		crate_implementors,
 		local_implementors,
 		mut struct_,
@@ -35,10 +35,10 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 	let struct_vis = &struct_.vis;
 	let struct_name = &struct_.ident;
 
-	let mutator_wrapper_name =
-		Ident::new(&(struct_.ident.to_string() + "MutatorWrapper"), Span::call_site());
+	let finder_wrapper_name =
+		Ident::new(&(struct_.ident.to_string() + "FinderWrapper"), Span::call_site());
 
-	let mutator_lifetime: Lifetime = parse_quote! {'mutator};
+	let finder_lifetime: Lifetime = parse_quote! {'finder};
 	let one = Index::from(1);
 
 	let implementors_count = Index::from(crate_implementors.len() + local_implementors.len());
@@ -102,21 +102,21 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 		}
 	}
 
-	let mutator_wrapper = quote! {
+	let finder_wrapper = quote! {
 		#[derive(Debug, Clone)]
-		#struct_vis struct #mutator_wrapper_name<#mutator_lifetime, #generics_idents>(
-			#struct_vis rust_writer::ast::mutator::Mutator<
-				#mutator_lifetime,
+		#struct_vis struct #finder_wrapper_name<#finder_lifetime, #generics_idents>(
+			#struct_vis rust_writer::ast::finder::Finder<
+				#finder_lifetime,
 				#struct_name<#generics_idents>,
 				#implementors_count
 			>
 		) #where_clause;
 
-		impl<#mutator_lifetime, #generics_idents> From<
-			rust_writer::ast::mutator::Mutator<#mutator_lifetime, #struct_name<#generics_idents>, #implementors_count>
-		> for #mutator_wrapper_name<#mutator_lifetime, #generics_idents> #where_clause{
-			#struct_vis fn from(input: rust_writer::ast::mutator::Mutator<
-				#mutator_lifetime,
+		impl<#finder_lifetime, #generics_idents> From<
+			rust_writer::ast::finder::Finder<#finder_lifetime, #struct_name<#generics_idents>, #implementors_count>
+		> for #finder_wrapper_name<#finder_lifetime, #generics_idents> #where_clause{
+			#struct_vis fn from(input: rust_writer::ast::finder::Finder<
+				#finder_lifetime,
 				#struct_name<#generics_idents>,
 				#implementors_count
 			>) -> Self {
@@ -125,60 +125,51 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 		}
 	};
 
-	let impl_to_mutate = quote! {
-		impl<#mutator_lifetime, #generics_idents>
-		rust_writer::ast::mutator::ToMutate<#mutator_lifetime, #struct_name<#generics_idents>, #implementors_count>
-		for rust_writer::ast::mutator::Mutator<'_, rust_writer::ast::mutator::EmptyMutator, #one>
+	let impl_to_find = quote! {
+		impl<#finder_lifetime, #generics_idents>
+		rust_writer::ast::finder::ToFind<#finder_lifetime, #struct_name<#generics_idents>, #implementors_count>
+		for rust_writer::ast::finder::Finder<'_, rust_writer::ast::finder::EmptyFinder, #one>
 		#where_clause
 		{
-			fn to_mutate(self, mutator: &#mutator_lifetime #struct_name<#generics_idents>)
+			fn to_find(self, finder: &#finder_lifetime #struct_name<#generics_idents>)
 			->
-			rust_writer::ast::mutator::Mutator<#mutator_lifetime, #struct_name<#generics_idents>,#implementors_count> {
-				rust_writer::ast::mutator::Mutator {
-					mutated: [false; #implementors_count],
-					mutator
+			rust_writer::ast::finder::Finder<#finder_lifetime, #struct_name<#generics_idents>,#implementors_count> {
+				rust_writer::ast::finder::Finder {
+					found: [false; #implementors_count],
+					finder
 				}
 			}
 		}
 	};
 
-	let impl_visit_mut = quote! {
-		impl<#mutator_lifetime, #generics_idents>
-		syn::visit_mut::VisitMut
-		for #mutator_wrapper_name<#mutator_lifetime, #generics_idents>
+	let impl_visit = quote! {
+		impl<#finder_lifetime, #generics_idents>
+		syn::visit::Visit<#finder_lifetime>
+		for #finder_wrapper_name<#finder_lifetime, #generics_idents>
 		#where_clause
 		{
-			fn visit_file_mut(&mut self, file: &mut syn::File){
+			fn visit_file(&mut self, file: &#finder_lifetime syn::File){
 				#(
-					let mut mutator = rust_writer::ast::mutator::Mutator::default()
-						.to_mutate(&self.0.mutator.#crate_implementors_idents);
-					mutator.visit_file_mut(file);
-					self.0.mutated[#crate_implementors_indexes] = mutator.mutated.iter().all(|&x| x);
+					let mut finder = rust_writer::ast::finder::Finder::default()
+						.to_find(&self.0.finder.#crate_implementors_idents);
+					self.0.found[#crate_implementors_indexes] = finder.find(file);
 				)*
 
 				#(
-					self.0.mutator.#local_implementors_idents.clone().visit_file_mut(file);
-					self.0.mutated[#local_implementors_indexes] = self.0.mutator
-						.#local_implementors_idents.mutated.iter().all(|&x| x);
+					self.0.finder[#local_implementors_indexes] = self.0.#local_implementors_idents.find(file);
 				)*
 			}
 		}
 	};
 
-	let impl_mutate = quote! {
-		impl<#mutator_lifetime, #generics_idents>
-		#mutator_wrapper_name<#mutator_lifetime, #generics_idents>
+	let impl_find = quote! {
+		impl<#finder_lifetime, #generics_idents>
+		#finder_wrapper_name<#finder_lifetime, #generics_idents>
 		#where_clause
 		{
-			fn mutate(&mut self, file: &mut syn::File) -> Result<(), rust_writer::Error>{
-				self.visit_file_mut(file);
-
-				if self.0.mutated.iter().all(|&x| x){
-					Ok(())
-				} else {
-					Err(rust_writer::Error::Descriptive(format!("Cannot mutate using Mutator: {:?}", self.0.mutator)))
-				}
-
+			fn find(&mut self, file: &#finder_lifetime syn::File) -> bool{
+				self.visit_file(file);
+				self.0.found.iter().all(|&x| x)
 			}
 		}
 	};
@@ -189,18 +180,17 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 	}
 
 	quote! {
-		#[rust_writer_procedural::already_expanded]
 		#struct_
 		#impl_from_block
-		#mutator_wrapper
-		#impl_to_mutate
-		#impl_visit_mut
-		#impl_mutate
+		#finder_wrapper
+		#impl_to_find
+		#impl_visit
+		#impl_find
 	}
 }
 
-pub(crate) fn expand_impl_mutator(def: ImplMutatorDef) -> TokenStream {
-	let ImplMutatorDef { struct_ } = def;
+pub(crate) fn expand_impl_finder(def: ImplFinderDef) -> TokenStream {
+	let ImplFinderDef { struct_ } = def;
 
 	let struct_name = &struct_.ident;
 
@@ -208,24 +198,19 @@ pub(crate) fn expand_impl_mutator(def: ImplMutatorDef) -> TokenStream {
 
 	let where_clause = where_clause.unwrap_or(parse_quote! {where});
 
-	let impl_mutate = quote! {
+	let impl_finder = quote! {
 		impl<#generics_idents>
 		#struct_name<#generics_idents>
 		#where_clause
 		{
-			fn mutate(&mut self, file: &mut syn::File) -> Result<(), rust_writer::Error>{
-				self.visit_file_mut(file);
-
-				if self.mutated.iter().all(|&x| x){
-					Ok(())
-				} else {
-					Err(rust_writer::Error::Descriptive(format!("Cannot mutate using Mutator: {:?}", self)))
-				}
+			fn find(&self, file: &syn::File) -> bool{
+				self.visit_file(file);
+				self.found.iter().all(|&x| x)
 			}
 		}
 	};
 
 	quote! {
-		#impl_mutate
+		#impl_finder
 	}
 }

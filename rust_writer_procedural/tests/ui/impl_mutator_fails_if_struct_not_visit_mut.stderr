@@ -1,11 +1,8 @@
-error[E0599]: no method named `visit_file_mut` found for struct `SomeStruct` in the current scope
- --> tests/ui/compile_fail/impl_mutator_fails_if_struct_not_visit_mut.rs:5:1
+error[E0599]: no method named `visit_file_mut` found for mutable reference `&mut SomeStruct` in the current scope
+ --> tests/ui/impl_mutator_fails_if_struct_not_visit_mut.rs:5:1
   |
 5 | #[impl_mutator]
-  | ^^^^^^^^^^^^^^^ method not found in `SomeStruct`
-6 | #[derive(Debug)]
-7 | struct SomeStruct {
-  | ----------------- method `visit_file_mut` not found for this struct
+  | ^^^^^^^^^^^^^^^ method not found in `&mut SomeStruct`
   |
   = help: items from traits can only be used if the trait is implemented and in scope
   = note: the following trait defines an item `visit_file_mut`, perhaps you need to implement it:

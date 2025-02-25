@@ -3,7 +3,7 @@
 use crate::parse_attrs::{MacroAttr, MacroAttrs};
 use syn::{Error, Fields, FieldsNamed, ItemStruct, Path, Result, Type, TypeArray};
 
-pub(crate) struct MutatorDef {
+pub(crate) struct FinderDef {
 	pub(crate) crate_implementors: Vec<Path>,
 	pub(crate) local_implementors: Vec<Path>,
 	pub(crate) struct_: ItemStruct,
@@ -11,11 +11,11 @@ pub(crate) struct MutatorDef {
 	pub(crate) impl_from: bool,
 }
 
-pub(crate) struct ImplMutatorDef {
+pub(crate) struct ImplFinderDef {
 	pub(crate) struct_: ItemStruct,
 }
 
-impl MutatorDef {
+impl FinderDef {
 	pub(crate) fn try_from(attrs: MacroAttrs, mut struct_: ItemStruct) -> Result<Self> {
 		let (already_expanded, impl_from) = attrs.validate_struct(&mut struct_)?.parse();
 
@@ -30,12 +30,12 @@ impl MutatorDef {
 	}
 }
 
-impl ImplMutatorDef {
+impl ImplFinderDef {
 	pub(crate) fn try_from(struct_: ItemStruct) -> Result<Self> {
 		match &struct_.fields {
 			Fields::Named(FieldsNamed { named, .. })
 				if named.iter().any(|field| {
-					field.ident.as_ref().expect("Named fields have ident; qed;") == "mutated" &&
+					field.ident.as_ref().expect("Named fields have ident; qed;") == "found" &&
 						matches!(&field.ty, Type::Array(TypeArray { elem, .. })
 							if matches!(&**elem, Type::Path(path) if path.path.is_ident("bool"))
 						)
@@ -43,7 +43,7 @@ impl ImplMutatorDef {
 				Ok(Self { struct_ }),
 			_ => Err(Error::new(
 				struct_.ident.span(),
-				"Expected a file named mutated being [bool;N] inside struct.",
+				"Expected a file named found being [bool;N] inside struct.",
 			)),
 		}
 	}

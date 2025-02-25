@@ -1,5 +1,5 @@
 error[E0277]: `SomeStruct` doesn't implement `Debug`
- --> tests/ui/compile_fail/impl_mutator_fails_if_struct_isnt_debug.rs:6:1
+ --> tests/ui/impl_mutator_fails_if_struct_isnt_debug.rs:6:1
   |
 6 | #[impl_mutator]
   | ^^^^^^^^^^^^^^^ `SomeStruct` cannot be formatted using `{:?}`

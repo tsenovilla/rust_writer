@@ -1,0 +1,5 @@
+error: expected `struct`
+ --> tests/ui/mutator_fails_if_not_applied_to_struct.rs:6:1
+  |
+6 | enum SomeEnum {
+  | ^^^^

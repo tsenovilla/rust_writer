@@ -6,6 +6,7 @@ use syn::{visit::Visit, File};
 #[derive(Debug)]
 pub struct EmptyFinder;
 
+#[derive(Debug, Clone)]
 pub struct Finder<'a, T: Debug, const N: usize> {
 	pub found: [bool; N],
 	pub finder: &'a T,
@@ -26,7 +27,7 @@ where
 	T: Debug,
 	Finder<'a, T, N>: Visit<'a>,
 {
-	pub fn find(&'a mut self, ast: &'a File) -> bool {
+	pub fn find(&mut self, ast: &'a File) -> bool {
 		self.visit_file(ast);
 		self.found.iter().all(|&x| x)
 	}
