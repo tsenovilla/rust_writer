@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
+#![cfg_attr(coverage_nightly, feature(coverage_attribute))]
+
 use crate::{
 	helpers::{self, ResolvedImplementors},
 	mutator::parse::{ImplMutatorDef, MutatorDef},
@@ -73,6 +75,7 @@ pub(crate) fn expand_mutator(def: MutatorDef) -> TokenStream {
 				Fields::Named(FieldsNamed { brace_token: Brace::default(), named: fields });
 		},
 		Fields::Named(ref mut fields) => fields.named.extend(new_struct_fields),
+		#[cfg_attr(coverage_nightly, coverage(off))]
 		_ => unreachable!("Parser doesn't allow Unnamed fields; qed;"),
 	}
 
