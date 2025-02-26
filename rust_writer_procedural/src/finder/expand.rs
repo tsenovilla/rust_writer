@@ -7,8 +7,8 @@ use crate::parse::{MacroImplParsed, MacroParsed};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
-	parse_quote, punctuated::Punctuated, token::Brace, Field, Fields, FieldsNamed, Ident, Index,
-	Lifetime, Token, Type,
+	parse_quote, punctuated::Punctuated, token::Brace, Field, Fields, FieldsNamed, LifetimeParam,
+	Ident, Index, Lifetime, Token, Type, GenericParam
 };
 
 pub(crate) fn expand_finder(parsed: MacroParsed) -> TokenStream {
@@ -162,17 +162,28 @@ pub(crate) fn expand_finder(parsed: MacroParsed) -> TokenStream {
 	}
 }
 
-pub(crate) fn expand_impl_finder(parsed: MacroImplParsed) -> TokenStream {
+pub(crate) fn expand_impl_finder(
+	visit_lifetime: LifetimeParam,
+	parsed: MacroImplParsed,
+) -> TokenStream {
 	let MacroImplParsed { struct_, generics_idents, where_clause } = parsed;
 
 	let struct_name = &struct_.ident;
 
+  let visit_lifetime = GenericParam::Lifetime(visit_lifetime);
+
+	let visit_lifetime_gen = if generics_idents.iter().any(|generic| generic == &visit_lifetime) {
+		quote! {}
+	} else {
+		quote! {#visit_lifetime,}
+	};
+
 	let impl_finder = quote! {
-		impl<#generics_idents>
+		impl<#visit_lifetime_gen #generics_idents>
 		#struct_name<#generics_idents>
 		#where_clause
 		{
-			fn find(&mut self, file: &syn::File) -> bool{
+			fn find(&mut self, file: &#visit_lifetime syn::File) -> bool{
 				self.visit_file(file);
 				self.found.iter().all(|&x| x)
 			}

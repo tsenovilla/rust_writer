@@ -1,4 +1,4 @@
-error: Expected a file named found being [bool;N] inside struct.
+error: Expected a field named found being [bool;N] inside struct.
  --> tests/ui/impl_finder_fails_if_found_field_isnt_bool_array.rs:6:8
   |
 6 | struct SomeStruct {

@@ -1,4 +1,4 @@
-error: Expected a file named mutated being [bool;N] inside struct.
+error: Expected a field named mutated being [bool;N] inside struct.
  --> tests/ui/impl_mutator_fails_if_not_field_called_mutated_in_implementor.rs:6:8
   |
 6 | struct SomeStruct;

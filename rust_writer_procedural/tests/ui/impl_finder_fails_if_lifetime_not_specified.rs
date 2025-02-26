@@ -2,11 +2,7 @@
 
 use rust_writer_procedural::impl_finder;
 
-#[impl_finder('a)]
-enum SomeStruct {
-	A,
-	B,
-	C,
-}
+#[impl_finder]
+struct SomeStruct {}
 
 fn main() {}

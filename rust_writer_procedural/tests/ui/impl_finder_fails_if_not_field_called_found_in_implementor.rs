@@ -2,7 +2,7 @@
 
 use rust_writer_procedural::impl_finder;
 
-#[impl_finder]
+#[impl_finder('a)]
 struct SomeStruct;
 
 fn main() {}

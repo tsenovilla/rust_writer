@@ -260,7 +260,7 @@ impl MacroImplParsed {
 			},
 			_ => Err(Error::new(
 				struct_.ident.span(),
-				format!("Expected a file named {} being [bool;N] inside struct.", field_ident),
+				format!("Expected a field named {} being [bool;N] inside struct.", field_ident),
 			)),
 		}
 	}

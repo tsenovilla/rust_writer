@@ -4,13 +4,13 @@ use rust_writer::ast::finder::ToFind;
 use rust_writer_procedural::{finder, impl_finder};
 use syn::visit::Visit;
 
-#[impl_finder]
+#[impl_finder('a)]
 #[derive(Clone)]
 struct A {
 	found: [bool; 1],
 }
 
-impl Visit<'_> for A {}
+impl<'a> Visit<'a> for A {}
 
 #[finder(rust_writer::ast::implementors::ItemToTrait<'a>, local = A)]
 struct SomeStruct;

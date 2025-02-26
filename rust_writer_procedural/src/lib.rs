@@ -23,8 +23,8 @@ pub fn finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn impl_finder(_: TokenStream, item: TokenStream) -> TokenStream {
-	finder::impl_finder(item)
+pub fn impl_finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
+	finder::impl_finder(attrs, item)
 }
 
 #[proc_macro_attribute]

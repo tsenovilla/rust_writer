@@ -9,13 +9,13 @@ use rust_writer_procedural::{finder, impl_finder, mutator};
 use syn::{parse_quote, visit::Visit, visit_mut::VisitMut, ImplItem, TraitItem};
 use test_builder::TestBuilder;
 
-#[impl_finder]
+#[impl_finder('a)]
 #[derive(Debug, Clone)]
 struct ToyFinderImplementor {
 	found: [bool; 0],
 }
 
-impl Visit<'_> for ToyFinderImplementor {}
+impl<'a> Visit<'a> for ToyFinderImplementor {}
 
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
 #[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyFinderImplementor)]
