@@ -43,7 +43,7 @@ fn inner_most_macro_implementors_not_contained_in_outermost_implementors_ok_with
 		let toy_finder_implementor = ToyFinderImplementor { found: [] };
 
 		let _some_struct = SomeStruct {
-      some_number: u8,
+      some_number: 1,
 			itemtoimpl: item_to_impl,
 			itemtotrait: item_to_trait,
 			toyfinderimplementor: toy_finder_implementor,
