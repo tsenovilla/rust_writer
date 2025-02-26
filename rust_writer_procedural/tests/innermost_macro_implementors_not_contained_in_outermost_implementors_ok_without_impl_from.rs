@@ -17,9 +17,8 @@ struct ToyFinderImplementor {
 
 impl Visit<'_> for ToyFinderImplementor {}
 
-#[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyFinderImplementor)]
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
-#[impl_from]
+#[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyFinderImplementor)]
 struct SomeStruct;
 
 #[test]
