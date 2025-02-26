@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
 use rust_writer::ast::{
-	implementors::{ItemToImpl, ItemToTrait},
 	finder::ToFind,
+	implementors::{ItemToImpl, ItemToTrait},
 };
 use rust_writer_procedural::finder;
 use syn::{parse_quote, visit::Visit, ImplItem, TraitItem};

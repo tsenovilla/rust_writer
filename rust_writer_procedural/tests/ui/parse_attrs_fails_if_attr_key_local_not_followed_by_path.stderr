@@ -1,0 +1,5 @@
+error: expected identifier
+ --> tests/ui/parse_attrs_fails_if_attr_key_local_not_followed_by_path.rs:5:68
+  |
+5 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, local = "hello")]
+  |                                                                    ^^^^^^^

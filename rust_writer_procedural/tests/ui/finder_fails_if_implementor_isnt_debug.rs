@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
 use rust_writer::ast::finder::ToFind;
-use rust_writer_procedural::{impl_finder, finder};
+use rust_writer_procedural::{finder, impl_finder};
 use syn::visit::Visit;
 
 #[impl_finder]
