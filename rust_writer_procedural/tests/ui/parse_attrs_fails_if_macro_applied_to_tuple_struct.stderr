@@ -1,5 +1,5 @@
 error: Expected unit struct or named-field struct.
- --> tests/ui/mutator_fails_if_applied_to_tuple_struct.rs:6:8
+ --> tests/ui/parse_attrs_fails_if_macro_applied_to_tuple_struct.rs:6:8
   |
 6 | struct SomeStruct(u8);
   |        ^^^^^^^^^^

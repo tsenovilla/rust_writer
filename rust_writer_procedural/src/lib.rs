@@ -3,7 +3,7 @@
 mod finder;
 pub(crate) mod helpers;
 mod mutator;
-pub(crate) mod parse_attrs;
+pub(crate) mod parse;
 
 use proc_macro::TokenStream;
 

@@ -1,5 +1,5 @@
 error: Expected 'local' as key.
- --> tests/ui/mutator_fails_if_attr_key_value_not_local.rs:5:60
+ --> tests/ui/parse_attrs_fails_if_attr_key_not_called_local.rs:5:60
   |
 5 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, invalid = path)]
   |                                                            ^^^^^^^

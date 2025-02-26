@@ -1,0 +1,5 @@
+error: Cannot use #[impl_from] in an struct annotated with #[already_impl_from]
+ --> tests/ui/parse_attrs_fail_if_impl_from_attribute_applied_with_already_impl_from_macro.rs:8:8
+  |
+8 | struct SomeStruct;
+  |        ^^^^^^^^^^

@@ -1,0 +1,17 @@
+error[E0599]: no method named `to_find` found for struct `Finder` in the current scope
+ --> tests/ui/finder_fails_if_to_find_not_in_scope.rs:6:1
+  |
+6 | #[finder(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `Finder<'_, EmptyFinder, 1>`
+  |
+ ::: $WORKSPACE/rust_writer/src/ast/finder.rs
+  |
+  |     fn to_find(self, finder: &'a T) -> Finder<'a, T, N>;
+  |        ------- the method is available for `Finder<'_, EmptyFinder, 1>` here
+  |
+  = help: items from traits can only be used if the trait is in scope
+  = note: this error originates in the attribute macro `finder` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: trait `ToFind` which provides `to_find` is implemented but not in scope; perhaps you want to import it
+  |
+3  + use rust_writer::ast::finder::ToFind;
+   |

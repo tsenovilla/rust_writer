@@ -10,7 +10,7 @@ use syn::{parse_quote, visit::Visit, visit_mut::VisitMut, ImplItem, TraitItem};
 use test_builder::TestBuilder;
 
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
-#[finder(ItemToTrait<'a>, ItemToImpl<'a>)]
+#[finder(ItemToImpl<'a>, ItemToTrait<'a>)]
 #[impl_from]
 struct SomeStruct;
 

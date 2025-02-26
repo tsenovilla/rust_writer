@@ -1,0 +1,26 @@
+error[E0277]: the trait bound `A: Clone` is not satisfied
+  --> tests/ui/finder_fails_if_implementor_isnt_clone.rs:15:1
+   |
+15 | #[finder(rust_writer::ast::implementors::ItemToTrait<'a>, local = A)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `Clone` is not implemented for `A`
+   |
+   = note: this error originates in the derive macro `Clone` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider annotating `A` with `#[derive(Clone)]`
+   |
+9  + #[derive(Clone)]
+10 | struct A {
+   |
+
+error[E0599]: no method named `clone` found for struct `A` in the current scope
+  --> tests/ui/finder_fails_if_implementor_isnt_clone.rs:15:1
+   |
+9  | struct A {
+   | -------- method `clone` not found for this struct
+...
+15 | #[finder(rust_writer::ast::implementors::ItemToTrait<'a>, local = A)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `A`
+   |
+   = help: items from traits can only be used if the trait is implemented and in scope
+   = note: the following trait defines an item `clone`, perhaps you need to implement it:
+           candidate #1: `Clone`
+   = note: this error originates in the attribute macro `finder` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,5 +1,5 @@
 error: Expected at least two implementors.
- --> tests/ui/mutator_fails_if_no_implementor.rs:5:1
+ --> tests/ui/parse_attrs_fails_if_no_implementor.rs:5:1
   |
 5 | #[mutator]
   | ^^^^^^^^^^

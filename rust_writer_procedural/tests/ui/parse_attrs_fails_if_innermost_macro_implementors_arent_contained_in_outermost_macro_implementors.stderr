@@ -1,0 +1,11 @@
+error: #[impl_from] is only allowed in structs annotated with #[mutator]/#[finder] at most once or structs annotated with #[mutator] and #[finder] such that the outermost macro implementors set contains the innermost macro implementors set.
+  --> tests/ui/parse_attrs_fails_if_innermost_macro_implementors_arent_contained_in_outermost_macro_implementors.rs:23:8
+   |
+23 | struct SomeStruct;
+   |        ^^^^^^^^^^
+
+error[E0412]: cannot find type `SomeStruct` in this scope
+  --> tests/ui/parse_attrs_fails_if_innermost_macro_implementors_arent_contained_in_outermost_macro_implementors.rs:23:8
+   |
+23 | struct SomeStruct;
+   |        ^^^^^^^^^^ not found in this scope

@@ -1,5 +1,5 @@
 error: Cannot use #[already_expanded] attribute in an unit struct
- --> tests/ui/mutator_fails_if_already_expanded_applied_to_unit_struct.rs:7:8
+ --> tests/ui/parse_attrs_fails_if_already_expanded_applied_to_unit_struct.rs:7:8
   |
 7 | struct SomeStruct;
   |        ^^^^^^^^^^
