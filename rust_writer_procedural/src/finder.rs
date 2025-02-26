@@ -4,7 +4,7 @@ mod expand;
 
 use crate::parse::{MacroAttrs, MacroImplParsed, MacroParsed};
 use proc_macro::TokenStream;
-use syn::{parse_macro_input, LifetimeParam, ItemStruct};
+use syn::{parse_macro_input, ItemStruct, LifetimeParam};
 
 pub(crate) fn finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
 	let attrs_list = parse_macro_input!(attrs as MacroAttrs);

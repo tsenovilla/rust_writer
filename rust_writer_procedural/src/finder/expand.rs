@@ -7,8 +7,8 @@ use crate::parse::{MacroImplParsed, MacroParsed};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
-	parse_quote, punctuated::Punctuated, token::Brace, Field, Fields, FieldsNamed, LifetimeParam,
-	Ident, Index, Lifetime, Token, Type, GenericParam
+	parse_quote, punctuated::Punctuated, token::Brace, Field, Fields, FieldsNamed, GenericParam,
+	Ident, Index, Lifetime, LifetimeParam, Token, Type,
 };
 
 pub(crate) fn expand_finder(parsed: MacroParsed) -> TokenStream {
@@ -170,7 +170,7 @@ pub(crate) fn expand_impl_finder(
 
 	let struct_name = &struct_.ident;
 
-  let visit_lifetime = GenericParam::Lifetime(visit_lifetime);
+	let visit_lifetime = GenericParam::Lifetime(visit_lifetime);
 
 	let visit_lifetime_gen = if generics_idents.iter().any(|generic| generic == &visit_lifetime) {
 		quote! {}
