@@ -19,8 +19,8 @@ impl<'a> Visit<'a> for ToyFinderImplementor {}
 
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
 #[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyFinderImplementor)]
-struct SomeStruct{
-    some_number: u8
+struct SomeStruct {
+	some_number: u8,
 }
 
 #[test]
@@ -43,7 +43,7 @@ fn inner_most_macro_implementors_not_contained_in_outermost_implementors_ok_with
 		let toy_finder_implementor = ToyFinderImplementor { found: [] };
 
 		let _some_struct = SomeStruct {
-      some_number: 1,
+			some_number: 1,
 			itemtoimpl: item_to_impl,
 			itemtotrait: item_to_trait,
 			toyfinderimplementor: toy_finder_implementor,
