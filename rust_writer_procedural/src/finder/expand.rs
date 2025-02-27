@@ -168,9 +168,11 @@ pub(crate) fn expand_impl_finder(
 
 	let struct_name = &struct_.ident;
 
+	let visit_lifetime_ident = &visit_lifetime.lifetime;
+	let visit_lifetime_ident: GenericParam = parse_quote!(#visit_lifetime_ident);
 	let visit_lifetime = GenericParam::Lifetime(visit_lifetime);
 
-	let visit_lifetime_gen =
+	let visit_lifetime_declaration =
 		if generics_declarations.iter().any(|generic| generic == &visit_lifetime) {
 			quote! {}
 		} else {
@@ -178,11 +180,11 @@ pub(crate) fn expand_impl_finder(
 		};
 
 	let impl_finder = quote! {
-		impl<#visit_lifetime_gen #generics_declarations>
+		impl<#visit_lifetime_declaration #generics_declarations>
 		#struct_name<#generics_idents>
 		#where_clause
 		{
-			fn find(&mut self, file: &#visit_lifetime syn::File) -> bool{
+			fn find(&mut self, file: &#visit_lifetime_ident syn::File) -> bool{
 				self.visit_file(file);
 				self.found.iter().all(|&x| x)
 			}

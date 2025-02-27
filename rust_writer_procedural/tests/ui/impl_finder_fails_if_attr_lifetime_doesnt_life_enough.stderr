@@ -1,0 +1,18 @@
+error: lifetime may not live long enough
+ --> tests/ui/impl_finder_fails_if_attr_lifetime_doesnt_life_enough.rs:7:1
+  |
+7 | #[impl_finder('b)]
+  | ^^^^^^^^^^^^^^--^^
+  | |             |
+  | |             lifetime `'b` defined here
+  | argument requires that `'b` must outlive `'a`
+8 | #[derive(Debug)]
+9 | struct SomeStruct<'a, T: Clone + std::fmt::Debug> {
+  |                   -- lifetime `'a` defined here
+  |
+  = help: consider adding the following bound: `'b: 'a`
+  = note: this error originates in the attribute macro `impl_finder` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: consider adding 'move' keyword before the nested closure
+  |
+7 | move #[impl_finder('b)]
+  | ++++
