@@ -21,9 +21,7 @@ impl<'a> Visit<'a> for ToyFinderImplementor {}
 #[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyFinderImplementor)]
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
 #[impl_from]
-struct SomeStruct {
-	some_number: u8,
-}
+struct SomeStruct;
 
 #[test]
 fn impl_from_with_outermost_macro_implementors_set_bigger_than_innermost_macro_implementors_set() {
@@ -44,7 +42,6 @@ fn impl_from_with_outermost_macro_implementors_set_bigger_than_innermost_macro_i
 
 		let toy_finder_implementor = ToyFinderImplementor { found: [] };
 
-		let _some_struct: SomeStruct =
-			(1, item_to_impl, item_to_trait, toy_finder_implementor).into();
+		let _some_struct: SomeStruct = (item_to_impl, item_to_trait, toy_finder_implementor).into();
 	});
 }

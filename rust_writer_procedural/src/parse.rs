@@ -152,6 +152,7 @@ pub(crate) struct MacroParsed {
 	pub(crate) implementors_count: Index,
 	pub(crate) crate_implementors_indexes: Vec<Index>,
 	pub(crate) local_implementors_indexes: Vec<Index>,
+	pub(crate) generics_declarations: Punctuated<GenericParam, Token![,]>,
 	pub(crate) generics_idents: Punctuated<GenericParam, Token![,]>,
 	pub(crate) where_clause: WhereClause,
 	pub(crate) new_struct_fields: Punctuated<Field, Token![,]>,
@@ -160,6 +161,7 @@ pub(crate) struct MacroParsed {
 // The content of #[impl_finder]/#[impl_mutator] macros
 pub(crate) struct MacroImplParsed {
 	pub(crate) struct_: ItemStruct,
+	pub(crate) generics_declarations: Punctuated<GenericParam, Token![,]>,
 	pub(crate) generics_idents: Punctuated<GenericParam, Token![,]>,
 	pub(crate) where_clause: WhereClause,
 }
@@ -206,7 +208,7 @@ impl MacroParsed {
 			.map(Index::from)
 			.collect();
 
-		let (generics_idents, where_clause) =
+		let (generics_declarations, generics_idents, where_clause) =
 			rustilities::parsing::extract_generics(&struct_.generics);
 
 		let where_clause = where_clause.unwrap_or(parse_quote! {where});
@@ -233,6 +235,7 @@ impl MacroParsed {
 			implementors_count,
 			crate_implementors_indexes,
 			local_implementors_indexes,
+			generics_declarations,
 			generics_idents,
 			where_clause,
 			new_struct_fields,
@@ -251,12 +254,12 @@ impl MacroImplParsed {
 						)
 				}) =>
 			{
-				let (generics_idents, where_clause) =
+				let (generics_declarations, generics_idents, where_clause) =
 					rustilities::parsing::extract_generics(&struct_.generics);
 
 				let where_clause = where_clause.unwrap_or(parse_quote! {where});
 
-				Ok(Self { struct_, generics_idents, where_clause })
+				Ok(Self { struct_, generics_idents, where_clause, generics_declarations })
 			},
 			_ => Err(Error::new(
 				struct_.ident.span(),

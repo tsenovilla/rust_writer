@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 
-#[cfg(test)]
-mod tests;
-
 use crate::parse::{MacroImplParsed, MacroParsed};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
@@ -22,6 +19,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 		implementors_count,
 		crate_implementors_indexes,
 		local_implementors_indexes,
+		generics_declarations,
 		generics_idents,
 		where_clause,
 		new_struct_fields,
@@ -65,7 +63,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 			struct_fields.iter().enumerate().map(|(index, _)| Index::from(index)).collect();
 
 		impl_from_block = quote! {
-			impl<#generics_idents> From<(#fields_types)> for #struct_name<#generics_idents> #where_clause{
+			impl<#generics_declarations> From<(#fields_types)> for #struct_name<#generics_idents> #where_clause{
 				fn from(tuple: (#fields_types)) -> Self{
 					Self{ #(#fields_names: tuple.#tuple_indexes),* }
 				}
@@ -77,7 +75,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 
 	let mutator_wrapper = quote! {
 		#[derive(Debug, Clone)]
-		#struct_vis struct #mutator_wrapper_name<#mutator_lifetime, #generics_idents>(
+		#struct_vis struct #mutator_wrapper_name<#mutator_lifetime, #generics_declarations>(
 			#struct_vis rust_writer::ast::mutator::Mutator<
 				#mutator_lifetime,
 				#struct_name<#generics_idents>,
@@ -85,7 +83,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 			>
 		) #where_clause;
 
-		impl<#mutator_lifetime, #generics_idents> From<
+		impl<#mutator_lifetime, #generics_declarations> From<
 			rust_writer::ast::mutator::Mutator<#mutator_lifetime, #struct_name<#generics_idents>, #implementors_count>
 		> for #mutator_wrapper_name<#mutator_lifetime, #generics_idents> #where_clause{
 			#struct_vis fn from(input: rust_writer::ast::mutator::Mutator<
@@ -99,7 +97,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 	};
 
 	let impl_to_mutate = quote! {
-		impl<#mutator_lifetime, #generics_idents>
+		impl<#mutator_lifetime, #generics_declarations>
 		rust_writer::ast::mutator::ToMutate<#mutator_lifetime, #struct_name<#generics_idents>, #implementors_count>
 		for rust_writer::ast::mutator::Mutator<'_, rust_writer::ast::mutator::EmptyMutator, #one>
 		#where_clause
@@ -116,7 +114,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 	};
 
 	let impl_visit_mut = quote! {
-		impl<#mutator_lifetime, #generics_idents>
+		impl<#mutator_lifetime, #generics_declarations>
 		syn::visit_mut::VisitMut
 		for #mutator_wrapper_name<#mutator_lifetime, #generics_idents>
 		#where_clause
@@ -139,7 +137,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 	};
 
 	let impl_mutate = quote! {
-		impl<#mutator_lifetime, #generics_idents>
+		impl<#mutator_lifetime, #generics_declarations>
 		#mutator_wrapper_name<#mutator_lifetime, #generics_idents>
 		#where_clause
 		{
@@ -173,12 +171,12 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 }
 
 pub(crate) fn expand_impl_mutator(parsed: MacroImplParsed) -> TokenStream {
-	let MacroImplParsed { struct_, generics_idents, where_clause } = parsed;
+	let MacroImplParsed { struct_, generics_idents, where_clause, generics_declarations } = parsed;
 
 	let struct_name = &struct_.ident;
 
 	let impl_mutate = quote! {
-		impl<#generics_idents>
+		impl<#generics_declarations>
 		#struct_name<#generics_idents>
 		#where_clause
 		{

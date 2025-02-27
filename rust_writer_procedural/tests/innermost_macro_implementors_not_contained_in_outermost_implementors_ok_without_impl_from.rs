@@ -20,6 +20,7 @@ impl<'a> Visit<'a> for ToyFinderImplementor {}
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
 #[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyFinderImplementor)]
 struct SomeStruct {
+	#[allow(dead_code)]
 	some_number: u8,
 }
 
