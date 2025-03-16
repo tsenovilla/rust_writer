@@ -6,6 +6,19 @@ use syn::parse_quote;
 use test_builder::TestBuilder;
 
 #[test]
+fn token_stream_to_macro_finder_does_nothing_when_token_stream_empty() {
+	TestBuilder::default().with_macro_ast().execute(|builder| {
+		let token_to_macro: TokenStreamToMacro =
+			(parse_quote! { my_macro }, None, TokenStream::new()).into();
+
+		let ast = builder.get_ref_ast_file("macro.rs").expect("This exists; qed;");
+
+		let mut finder = Finder::default().to_find(&token_to_macro);
+		assert!(!finder.find(ast));
+	});
+}
+
+#[test]
 fn token_stream_to_macro_finder_finds_token_stream_without_container() {
 	TestBuilder::default().with_macro_ast().execute(|builder| {
 		let token_stream_to_macro: TokenStreamToMacro =
@@ -126,7 +139,7 @@ fn token_stream_to_macro_mutate_works_with_container() {
 fn token_stream_to_macro_mutate_fails_if_cannot_find_container() {
 	TestBuilder::default().with_macro_ast().execute(|mut builder| {
 		let token_to_macro: TokenStreamToMacro =
-			(parse_quote! { my_macro }, Some(parse_quote! { UnexistingEnum }), parse_quote! { D })
+			(parse_quote! { my_macro }, Some(parse_quote! { Type1 }), parse_quote! { D })
 				.into();
 
 		let ast = builder.get_mut_ast_file("macro.rs").expect("This exists; qed;");
