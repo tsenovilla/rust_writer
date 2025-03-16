@@ -21,7 +21,7 @@ pub(crate) struct ResolvedImplementors {
 	pub(crate) implementors_idents: Vec<Ident>,
 }
 
-const UNREACHABLE_MESSAGE: &'static str =
+const UNREACHABLE_MESSAGE: &str =
 	"syn::PathArguments cannot be parsed with `const ident:type` in the arguments; qed;";
 
 pub(crate) fn resolve_implementors_for_struct<'a, T>(

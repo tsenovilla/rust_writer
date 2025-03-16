@@ -18,7 +18,7 @@ pub enum MacroAttr {
 	LocalImplementor(Path),
 }
 
-const MACRO_ATTR_PARSE_ERR: &'static str = "Expected a path to a rust_writer implementor or 'local =' followed by a local implementor path";
+const MACRO_ATTR_PARSE_ERR: &str = "Expected a path to a rust_writer implementor or 'local =' followed by a local implementor path";
 
 impl Parse for MacroAttr {
 	fn parse(input: ParseStream) -> Result<Self> {
@@ -71,7 +71,7 @@ impl InnerAttr {
 	}
 }
 
-const IMPL_FROM_ERR_MSG: &'static str = "#[impl_from] is only allowed in structs annotated with #[mutator]/#[finder] at most once or structs annotated with #[mutator] and #[finder] such that the outermost macro implementors set contains the innermost macro implementors set.";
+const IMPL_FROM_ERR_MSG: &str = "#[impl_from] is only allowed in structs annotated with #[mutator]/#[finder] at most once or structs annotated with #[mutator] and #[finder] such that the outermost macro implementors set contains the innermost macro implementors set.";
 
 impl MacroAttrs {
 	pub(crate) fn validate_struct(&self, item_struct: &mut ItemStruct) -> Result<InnerAttr> {
