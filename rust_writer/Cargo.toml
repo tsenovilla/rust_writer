@@ -11,6 +11,7 @@ documentation.workspace = true
 [dependencies]
 prettyplease = { workspace = true }
 proc-macro2 = { workspace = true }
+regex = { workspace = true }
 rust_writer_procedural = { workspace = true }
 rustilities = { workspace = true, features = ["parsing"] }
 syn = { workspace = true, features = ["full", "extra-traits", "visit", "visit-mut"] }
