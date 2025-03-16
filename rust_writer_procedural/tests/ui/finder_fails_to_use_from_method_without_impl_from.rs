@@ -15,7 +15,7 @@ fn main() {
 		("MyTrait", TraitItem::Type(parse_quote! {type Type1: From<String>;})).into();
 
 	let item_to_impl: ItemToImpl = (
-		"SomeTrait",
+		Some("SomeTrait"),
 		"SomeImplementor",
 		ImplItem::Fn(parse_quote! {
 		fn some_func(&self) -> bool{
