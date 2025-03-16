@@ -1,3 +1,14 @@
+error[E0277]: the trait bound `ItemToImpl<'_>: From<(&str, &str, ImplItem)>` is not satisfied
+  --> tests/ui/finder_fails_to_use_from_method_without_impl_from.rs:26:4
+   |
+26 |         .into();
+   |          ^^^^ the trait `From<(&str, &str, ImplItem)>` is not implemented for `ItemToImpl<'_>`
+   |
+   = help: the trait `From<(&str, &str, ImplItem)>` is not implemented for `ItemToImpl<'_>`
+           but trait `From<(Option<&str>, &str, ImplItem)>` is implemented for it
+   = help: for that trait implementation, expected `Option<&str>`, found `&str`
+   = note: required for `(&str, &str, ImplItem)` to implement `Into<ItemToImpl<'_>>`
+
 error[E0277]: the trait bound `SomeStruct<'_>: From<(ItemToTrait<'_>, ItemToImpl<'_>)>` is not satisfied
   --> tests/ui/finder_fails_to_use_from_method_without_impl_from.rs:28:63
    |

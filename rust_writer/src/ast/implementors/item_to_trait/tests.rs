@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
 use super::*;
-use crate::{
-	ast::{
-		finder::{Finder, ToFind},
-		mutator::{Mutator, ToMutate},
-	},
-	Error,
-};
+use crate::Error;
 use syn::parse_quote;
 use test_builder::TestBuilder;
 

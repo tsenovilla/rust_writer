@@ -7,32 +7,33 @@ use crate::ast::{
 	finder::{EmptyFinder, Finder, ToFind},
 	mutator::{EmptyMutator, Mutator, ToMutate},
 };
-use std::fmt::Debug;
 use syn::{visit::Visit, visit_mut::VisitMut, ImplItem, ItemImpl, PathSegment};
 
 #[derive(Debug, Clone)]
 pub struct ItemToImpl<'a> {
-	pub trait_name: &'a str,
+	pub trait_name: Option<&'a str>,
 	pub implementor_name: &'a str,
 	pub impl_item: ImplItem,
 }
 
-impl<'a> From<(&'a str, &'a str, ImplItem)> for ItemToImpl<'a> {
-	fn from(tuple: (&'a str, &'a str, ImplItem)) -> Self {
+impl<'a> From<(Option<&'a str>, &'a str, ImplItem)> for ItemToImpl<'a> {
+	fn from(tuple: (Option<&'a str>, &'a str, ImplItem)) -> Self {
 		Self { trait_name: tuple.0, implementor_name: tuple.1, impl_item: tuple.2 }
 	}
 }
 
 struct PathSegmentFinder<'a> {
 	found: [bool; 2],
-	trait_name: &'a str,
+	trait_name: Option<&'a str>,
 	implementor_name: &'a str,
 }
 
 impl<'a> PathSegmentFinder<'a> {
 	fn find_impl_paths(&mut self, item_impl: &'a ItemImpl) {
-		if let Some((_, path, _)) = &item_impl.trait_ {
-			self.visit_path(path);
+		match item_impl.trait_ {
+			Some((_, ref path, _)) => self.visit_path(path),
+			None if self.trait_name.is_none() => self.found[0] = true,
+			_ => (),
 		}
 		self.visit_type(&item_impl.self_ty);
 	}
@@ -40,9 +41,11 @@ impl<'a> PathSegmentFinder<'a> {
 
 impl<'a> Visit<'a> for PathSegmentFinder<'a> {
 	fn visit_path_segment(&mut self, path_segment: &'a PathSegment) {
-		if path_segment.ident == self.trait_name {
-			self.found[0] = true;
-		} else if path_segment.ident == self.implementor_name {
+		match self.trait_name {
+			Some(trait_name) if path_segment.ident == trait_name => self.found[0] = true,
+			_ => (),
+		}
+		if path_segment.ident == self.implementor_name {
 			self.found[1] = true;
 		}
 	}

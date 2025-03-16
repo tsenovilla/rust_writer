@@ -35,7 +35,7 @@ fn impl_from_with_outermost_macro_implementors_set_bigger_than_innermost_macro_i
 			("MyTrait", TraitItem::Type(parse_quote! {type Type3: From<String>;})).into();
 
 		let item_to_impl: ItemToImpl = (
-			"SomeTrait",
+			Some("SomeTrait"),
 			"SomeImplementor",
 			ImplItem::Fn(parse_quote! {
 			fn other_func(&self) -> bool{

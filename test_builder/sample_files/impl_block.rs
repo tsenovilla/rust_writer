@@ -6,4 +6,10 @@ impl SomeTrait for SomeImplementor{
     fn some_func(&self) -> bool{
         true
     }
-} 
+}
+
+impl SomeImplementor{
+    fn some_super_func(&self) -> bool{
+        true
+    }
+}

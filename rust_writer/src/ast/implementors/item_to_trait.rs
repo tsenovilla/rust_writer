@@ -7,7 +7,6 @@ use crate::ast::{
 	finder::{EmptyFinder, Finder, ToFind},
 	mutator::{EmptyMutator, Mutator, ToMutate},
 };
-use std::fmt::Debug;
 use syn::{visit::Visit, visit_mut::VisitMut, ItemTrait, TraitItem};
 
 #[derive(Debug, Clone)]

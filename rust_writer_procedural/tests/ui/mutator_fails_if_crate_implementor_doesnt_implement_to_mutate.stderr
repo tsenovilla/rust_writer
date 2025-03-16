@@ -6,8 +6,10 @@ error[E0277]: the trait bound `Mutator<'_, EmptyMutator, 1>: ToMutate<'_, EmptyM
    |
    = help: the following other types implement trait `ToMutate<'a, T, N>`:
              `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, ItemToImpl<'_>, 1>`
+             `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, ItemToMod<'_>, 1>`
              `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, ItemToTrait<'_>, 1>`
              `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, SomeStruct<'_>, 2>`
+             `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, TokenStreamToMacro, 1>`
    = note: this error originates in the attribute macro `mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: no method named `visit_file_mut` found for struct `Mutator` in the current scope

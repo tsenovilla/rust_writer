@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use crate::parse::{MacroImplParsed, MacroParsed};
+use crate::parse::{MacroFinderMutatorParsed, MacroImplParsed};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
@@ -8,8 +8,8 @@ use syn::{
 	Lifetime, Token, Type,
 };
 
-pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
-	let MacroParsed {
+pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
+	let MacroFinderMutatorParsed {
 		crate_implementors_idents,
 		local_implementors_idents,
 		mut struct_,
@@ -70,7 +70,7 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 			}
 		};
 
-		struct_.attrs.push(parse_quote!(#[rust_writer_procedural::already_impl_from]));
+		struct_.attrs.push(parse_quote!(#[rust_writer::ast::macros::already_impl_from]));
 	}
 
 	let mutator_wrapper = quote! {
@@ -155,12 +155,11 @@ pub(crate) fn expand_mutator(parsed: MacroParsed) -> TokenStream {
 	};
 
 	if !already_expanded {
-		struct_.attrs.push(parse_quote!(#[rust_writer_procedural::already_expanded]));
+		struct_.attrs.push(parse_quote!(#[rust_writer::ast::macros::already_expanded]));
 		struct_.attrs.push(parse_quote!(#[derive(Debug, Clone)]));
 	}
 
 	quote! {
-		#[rust_writer_procedural::already_expanded]
 		#struct_
 		#impl_from_block
 		#mutator_wrapper

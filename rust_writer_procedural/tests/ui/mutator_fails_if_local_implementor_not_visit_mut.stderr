@@ -1,10 +1,10 @@
 error[E0599]: no method named `visit_file_mut` found for struct `SomeImplementor` in the current scope
-  --> tests/ui/mutator_fails_if_local_implementor_not_visit_mut.rs:13:1
+  --> tests/ui/mutator_fails_if_local_implementor_not_visit_mut.rs:12:1
    |
-9  | struct SomeImplementor {
+8  | struct SomeImplementor {
    | ---------------------- method `visit_file_mut` not found for this struct
 ...
-13 | #[mutator(local = SomeImplementor, rust_writer::ast::implementors::ItemToImpl<'a>)]
+12 | #[mutator(local = SomeImplementor, rust_writer::ast::implementors::ItemToImpl<'a>)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `SomeImplementor`
    |
    = help: items from traits can only be used if the trait is implemented and in scope

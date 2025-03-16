@@ -31,7 +31,7 @@ fn inner_most_macro_implementors_not_contained_in_outermost_implementors_ok_with
 			("MyTrait", TraitItem::Type(parse_quote! {type Type3: From<String>;})).into();
 
 		let item_to_impl: ItemToImpl = (
-			"SomeTrait",
+			Some("SomeTrait"),
 			"SomeImplementor",
 			ImplItem::Fn(parse_quote! {
 			fn other_func(&self) -> bool{

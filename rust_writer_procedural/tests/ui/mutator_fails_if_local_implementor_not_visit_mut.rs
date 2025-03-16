@@ -4,7 +4,6 @@ use rust_writer::ast::mutator::ToMutate;
 use rust_writer_procedural::mutator;
 use syn::visit_mut::VisitMut;
 
-// A custom mutator emulating ItemToTrait
 #[derive(Debug, Clone)]
 struct SomeImplementor {
 	mutated: [bool; 1],

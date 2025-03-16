@@ -2,7 +2,7 @@
 
 mod expand;
 
-use crate::parse::{MacroAttrs, MacroImplParsed, MacroParsed};
+use crate::parse::{MacroAttrs, MacroFinderMutatorParsed, MacroImplParsed};
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, ItemStruct, LifetimeParam};
 
@@ -10,7 +10,7 @@ pub(crate) fn finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
 	let attrs_list = parse_macro_input!(attrs as MacroAttrs);
 	let struct_def = parse_macro_input!(item as ItemStruct);
 
-	match MacroParsed::try_from(attrs_list, struct_def) {
+	match MacroFinderMutatorParsed::try_from(attrs_list, struct_def) {
 		Ok(parsed) => expand::expand_finder(parsed).into(),
 		Err(err) => err.to_compile_error().into(),
 	}

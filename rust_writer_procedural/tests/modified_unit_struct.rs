@@ -21,7 +21,7 @@ fn modified_unit_struct() {
 			("MyTrait", TraitItem::Type(parse_quote! {type Type3: From<String>;})).into();
 
 		let item_to_impl: ItemToImpl = (
-			"SomeTrait",
+			Some("SomeTrait"),
 			"SomeImplementor",
 			ImplItem::Fn(parse_quote! {
 			fn other_func(&self) -> bool{

@@ -37,7 +37,7 @@ fn modified_struct_using_local_implementor_with_generics() {
 			("MyTrait", TraitItem::Type(parse_quote! {type Type3: From<String>;})).into();
 
 		let item_to_impl: ItemToImpl = (
-			"SomeTrait",
+			Some("SomeTrait"),
 			"SomeImplementor",
 			ImplItem::Fn(parse_quote! {
 			fn other_func(&self) -> bool{

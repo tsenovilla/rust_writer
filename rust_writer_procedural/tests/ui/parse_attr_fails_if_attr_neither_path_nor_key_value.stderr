@@ -1,4 +1,4 @@
-error: expected identifier
+error: Expected a path to a rust_writer implementor or 'local =' followed by a local implementor path
  --> tests/ui/parse_attr_fails_if_attr_neither_path_nor_key_value.rs:5:60
   |
 5 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, "hello world")]
