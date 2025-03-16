@@ -7,15 +7,17 @@ mod tests;
 
 use crate::Error;
 use regex::{Captures, Regex};
-use syn::{parse_file, File};
+use std::path::Path;
+use syn::File;
 use types::{DelimitersCount, Preserver};
 
-pub fn preserve_and_parse(code: String, preservers: Vec<Preserver>) -> Result<File, Error> {
-	let preserved_code = apply_preservers(code, preservers);
-	Ok(parse_file(&preserved_code)?)
+pub fn preserve_and_parse(code: &Path, preservers: Vec<Preserver>) -> Result<File, Error> {
+	let preserved_code = apply_preservers(std::fs::read_to_string(code)?, preservers);
+	Ok(syn::parse_file(&preserved_code)?)
 }
 
-pub fn resolve_preserved(code: String) -> String {
+pub fn resolve_preserved(code: &File) -> String {
+	let code = prettyplease::unparse(code);
 	// Inside non-preserved declarative macros invocations, everything is a token so the doc
 	// comments became #[doc] in order to preserve them (tokens doesn't accept doc comments).
 	// ///TEMP_DOC comments became #[doc = "///TEMP_DOC"] which are 4 tokens in the AST. When the
@@ -39,8 +41,9 @@ fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
 
 	let mut lines = code.lines();
 
-	// Non-preserved lines are pushed to the Vec together with a new line character, so the bound
-	// #lines * 2 is an upper bound of the final capacity
+	// Non-preserved lines are pushed to the Vec in bundles, whule preserved lines are pushed
+	// together with a '\n' character, so the bound #lines * 2 is an upper
+	// bound of the final capacity (probably far from the real length of the Vec).
 	let mut result: Vec<String> = Vec::with_capacity(code.lines().count() * 2);
 
 	while let Some(line) = lines.next() {
@@ -84,10 +87,10 @@ fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
 					// Preserve comments and global attributes.
 					// Global attributes may be hard to parse with syn, so we comment them to solve
 					// potential issues related to them.
-					result.push(format!("///TEMP_DOC{}\ntype temp_marker = ();", line));
+					result.push(format!("///TEMP_DOC{}\ntype temp_marker = ();\n", line));
 				} else if trimmed_line.is_empty() {
 					// Preserve empty lines inside a non-preserved block
-					result.push("///TEMP_DOC\ntype temp_marker = ();".to_owned());
+					result.push("///TEMP_DOC\ntype temp_marker = ();\n".to_owned());
 				} else {
 					result.push(line.to_owned());
 					result.push("\n".to_owned());
@@ -98,7 +101,7 @@ fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
 		}
 	}
 
-	result.push("type temp_marker = ();".to_owned());
+	result.push("type temp_marker = ();\n".to_owned());
 
 	result.join("")
 }
