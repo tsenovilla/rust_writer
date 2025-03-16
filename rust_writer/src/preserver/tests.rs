@@ -30,3 +30,28 @@ fn apply_preservers_works() {
 			);
 		});
 }
+
+#[test]
+fn preserve_and_parse_works() {
+	TestBuilder::default()
+		.with_complete_file()
+		.with_preserved_file_ast()
+		.execute(|builder| {
+			let preserved_ast =
+				builder.get_ref_ast_file("preserved_file.rs").expect("This exists; qed;");
+
+			let preserver1 = Preserver::new("struct MyStruct");
+			let mut preserver2 = Preserver::new("impl MyTrait for MyStruct");
+			preserver2.add_inners(vec!["fn trait_method"]);
+			let preserver3 = Preserver::new("fn main");
+
+			assert_eq!(
+				*preserved_ast,
+				preserve_and_parse(
+					builder.tempfile_path("complete_file.rs").expect("This exists; qed;"),
+					vec![preserver1, preserver2, preserver3]
+				)
+				.expect("This should be Ok; qed;")
+			);
+		});
+}
