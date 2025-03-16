@@ -5,6 +5,7 @@ error[E0277]: the trait bound `Mutator<'_, EmptyMutator, 1>: ToMutate<'_, EmptyM
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ToMutate<'_, EmptyMutator, _>` is not implemented for `Mutator<'_, EmptyMutator, 1>`
    |
    = help: the following other types implement trait `ToMutate<'a, T, N>`:
+             `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, ItemToFile, 1>`
              `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, ItemToImpl<'_>, 1>`
              `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, ItemToMod<'_>, 1>`
              `Mutator<'_, EmptyMutator, 1>` implements `ToMutate<'_, ItemToTrait<'_>, 1>`

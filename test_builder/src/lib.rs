@@ -39,7 +39,8 @@ impl<'a> TestBuilder<'a> {
 		[with_impl_block_ast, "impl_block.rs"],
 		[with_trait_and_impl_block_ast, "trait_and_impl_block.rs"],
 		[with_mod_ast, "mod.rs"],
-		[with_macro_ast, "macro.rs"]
+		[with_macro_ast, "macro.rs"],
+		[with_file_ast, "file.rs"]
 	}
 
 	pub fn get_ref_ast_file(&self, key: &'a str) -> Option<&syn_File> {

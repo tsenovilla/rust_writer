@@ -5,6 +5,7 @@ error[E0277]: the trait bound `Finder<'_, EmptyFinder, 1>: ToFind<'_, EmptyMutat
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ToFind<'_, EmptyMutator, _>` is not implemented for `Finder<'_, EmptyFinder, 1>`
   |
   = help: the following other types implement trait `ToFind<'a, T, N>`:
+            `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToFile, 1>`
             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToImpl<'_>, 1>`
             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToMod<'_>, 1>`
             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToTrait<'_>, 1>`
