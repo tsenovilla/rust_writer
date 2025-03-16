@@ -41,7 +41,7 @@ impl<'a> ToMutate<'a, ItemToFile, 1> for Mutator<'_, EmptyMutator, 1> {
 	}
 }
 
-impl<'a> VisitMut for Mutator<'a, ItemToFile, 1> {
+impl VisitMut for Mutator<'_, ItemToFile, 1> {
 	fn visit_file_mut(&mut self, file: &mut File) {
 		if self.mutator.to_file_end {
 			file.items.push(self.mutator.item.clone());

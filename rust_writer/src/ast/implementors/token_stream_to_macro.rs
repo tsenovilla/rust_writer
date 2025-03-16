@@ -32,15 +32,15 @@ impl<'a> ToFind<'a, TokenStreamToMacro, 1> for Finder<'a, EmptyFinder, 1> {
 impl<'a> Visit<'a> for Finder<'a, TokenStreamToMacro, 1> {
 	fn visit_macro(&mut self, macro_: &'a Macro) {
 		if self.finder.token_stream.is_empty() {
-			return ();
+			return;
 		}
 
 		if macro_.path == self.finder.macro_path {
 			match self.finder.container_ident.clone() {
 				Some(ident) => {
-					let mut macro_tokens_iter = macro_.tokens.clone().into_iter();
+					let macro_tokens_iter = macro_.tokens.clone().into_iter();
 					let mut ident_found = false;
-					while let Some(token) = macro_tokens_iter.next() {
+					for token in macro_tokens_iter {
 						match token {
 							TokenTree::Ident(macro_ident)
 								if ident == macro_ident && !ident_found =>
@@ -77,7 +77,7 @@ impl<'a> ToMutate<'a, TokenStreamToMacro, 1> for Mutator<'_, EmptyMutator, 1> {
 	}
 }
 
-impl<'a> VisitMut for Mutator<'a, TokenStreamToMacro, 1> {
+impl VisitMut for Mutator<'_, TokenStreamToMacro, 1> {
 	fn visit_macro_mut(&mut self, macro_: &mut Macro) {
 		if macro_.path == self.mutator.macro_path {
 			match self.mutator.container_ident.clone() {

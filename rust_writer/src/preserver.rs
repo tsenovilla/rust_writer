@@ -61,7 +61,7 @@ fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
 
 			if let Some(inner_preserver_pointer) = inner_preserver {
 				let mut inner_code = String::new();
-				while let Some(line) = lines.next() {
+				for line in lines.by_ref() {
 					delimiters_counts.count(line);
 
 					if delimiters_counts.is_complete() {
@@ -71,33 +71,31 @@ fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
 						break;
 					} else {
 						inner_code.push_str(line);
-						inner_code.push_str("\n");
+						inner_code.push('\n');
 					}
 				}
 			}
+		} else if delimiters_counts.is_complete() {
+			result.push(format!("///TEMP_DOC{}\n", line));
 		} else {
-			if delimiters_counts.is_complete() {
-				result.push(format!("///TEMP_DOC{}\n", line));
+			if (trimmed_line.starts_with("//") &&
+				!trimmed_line.starts_with("///") &&
+				!trimmed_line.starts_with("//!")) ||
+				trimmed_line.starts_with("#![")
+			{
+				// Preserve comments and global attributes.
+				// Global attributes may be hard to parse with syn, so we comment them to solve
+				// potential issues related to them.
+				result.push(format!("///TEMP_DOC{}\ntype temp_marker = ();\n", line));
+			} else if trimmed_line.is_empty() {
+				// Preserve empty lines inside a non-preserved block
+				result.push("///TEMP_DOC\ntype temp_marker = ();\n".to_owned());
 			} else {
-				if (trimmed_line.starts_with("//") &&
-					!trimmed_line.starts_with("///") &&
-					!trimmed_line.starts_with("//!")) ||
-					trimmed_line.starts_with("#![")
-				{
-					// Preserve comments and global attributes.
-					// Global attributes may be hard to parse with syn, so we comment them to solve
-					// potential issues related to them.
-					result.push(format!("///TEMP_DOC{}\ntype temp_marker = ();\n", line));
-				} else if trimmed_line.is_empty() {
-					// Preserve empty lines inside a non-preserved block
-					result.push("///TEMP_DOC\ntype temp_marker = ();\n".to_owned());
-				} else {
-					result.push(line.to_owned());
-					result.push("\n".to_owned());
-				}
-
-				delimiters_counts.count(line);
+				result.push(line.to_owned());
+				result.push("\n".to_owned());
 			}
+
+			delimiters_counts.count(line);
 		}
 	}
 
