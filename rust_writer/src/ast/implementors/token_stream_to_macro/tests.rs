@@ -139,8 +139,7 @@ fn token_stream_to_macro_mutate_works_with_container() {
 fn token_stream_to_macro_mutate_fails_if_cannot_find_container() {
 	TestBuilder::default().with_macro_ast().execute(|mut builder| {
 		let token_to_macro: TokenStreamToMacro =
-			(parse_quote! { my_macro }, Some(parse_quote! { Type1 }), parse_quote! { D })
-				.into();
+			(parse_quote! { my_macro }, Some(parse_quote! { Type1 }), parse_quote! { D }).into();
 
 		let ast = builder.get_mut_ast_file("macro.rs").expect("This exists; qed;");
 
