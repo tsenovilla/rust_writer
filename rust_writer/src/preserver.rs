@@ -23,8 +23,8 @@ pub fn resolve_preserved(ast: &File, path: &Path) -> Result<(), Error> {
 	// ///TEMP_DOC comments became #[doc = "///TEMP_DOC"] which are 4 tokens in the AST. When the
 	// AST is converted to a String, new line characters can appear in the middle of any of those
 	// tokens, so to properly unpreserve them we can use regex.
-	// As the #[doc] attribute may be present anywhere, be sure to keep spaces before and after the
-	// comment to don't leave commented some lines of code.
+	// Attention, before TEMP_DOCs may appear some literal space character (\\s, \\t, \\n). They
+	// must be skipped to avoid having invalid rust code!
 	let re = Regex::new(r#"#\s*\[\s*doc\s*=\s*"TEMP_DOC([\\s\\t\\n]*)(.*?)"\s*\]"#)
 		.expect("The regex is valid; qed;");
 	let code = re.replace_all(&code, |caps: &Captures| format!("\n{}\n", &caps[2])).to_string();
