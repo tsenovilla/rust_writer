@@ -11,13 +11,12 @@ use syn::{visit::Visit, visit_mut::VisitMut, File, Item};
 
 #[derive(Debug, Clone)]
 pub struct ItemToFile {
-	pub to_file_end: bool,
 	pub item: Item,
 }
 
-impl From<(bool, Item)> for ItemToFile {
-	fn from(tuple: (bool, Item)) -> Self {
-		Self { to_file_end: tuple.0, item: tuple.1 }
+impl From<Item> for ItemToFile {
+	fn from(item: Item) -> Self {
+		Self { item }
 	}
 }
 
@@ -43,11 +42,7 @@ impl<'a> ToMutate<'a, ItemToFile, 1> for Mutator<'_, EmptyMutator, 1> {
 
 impl VisitMut for Mutator<'_, ItemToFile, 1> {
 	fn visit_file_mut(&mut self, file: &mut File) {
-		if self.mutator.to_file_end {
-			file.items.push(self.mutator.item.clone());
-		} else {
-			file.items.insert(0, self.mutator.item.clone());
-		}
+		file.items.push(self.mutator.item.clone());
 		self.mutated[0] = true;
 	}
 }
