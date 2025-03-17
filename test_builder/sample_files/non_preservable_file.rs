@@ -20,6 +20,7 @@ macro_rules! my_macro {
 
 // A struct
 struct MyStruct {
+    // Invalid comment
     field1: i32,
     field2: String,
 }
@@ -38,6 +39,7 @@ impl MyTrait for MyStruct {
     fn other_method(&self) {
         println!("Trait method called!");
     }
+
 }
 
 // An impl block with an associated function

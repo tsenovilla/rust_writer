@@ -38,7 +38,6 @@ impl MyTrait for MyStruct {
 ///TEMP_DOC    fn other_method(&self) {
 ///TEMP_DOC        println!("Trait method called!");
 ///TEMP_DOC    }
-///TEMP_DOC
 type temp_marker = ();
 }
 ///TEMP_DOC

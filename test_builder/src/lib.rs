@@ -47,13 +47,57 @@ macro_rules! add_tempfiles_from_sample_files{
        let sample_file_path = Path::new(&std::env::var("SAMPLE_FILES_PATH")
          .expect("SAMPLE_FILES_PATH must be defined; qed;"))
          .join($file);
-       let tempfile = NamedTempFile::new_in(self.tempdir.path()).expect("Tempfile should be created; qed;");
-       std::fs::copy(sample_file_path, tempfile.path()).expect("Tempfile should be writable; qed;");
+       let tempdir_path = self.tempdir.path();
+       let tempfile = NamedTempFile::new_in(&tempdir_path)
+         .expect("Tempfile should be created; qed;");
+       std::fs::copy(sample_file_path, tempfile.path())
+         .expect("Tempfile should be writable; qed;");
        self.tempfiles.insert($file, tempfile);
        self
-      }
-    )*
-  };
+     }
+   )*
+ };
+
+ ($([crate_bin_file: $name: ident, $file: literal]),*) => {
+   $(
+     pub fn $name(mut self) -> Self{
+       let sample_file_path = Path::new(&std::env::var("SAMPLE_FILES_PATH")
+         .expect("SAMPLE_FILES_PATH must be defined; qed;"))
+         .join($file);
+       let tempdir_path = self.tempdir.path().join("src");
+       std::fs::create_dir_all(&tempdir_path)
+         .expect("Failed to create src directory; qed;");
+       let tempfile = NamedTempFile::new_in(&tempdir_path)
+         .expect("Tempfile should be created; qed;");
+       std::fs::copy(sample_file_path, tempfile.path())
+         .expect("Tempfile should be writable; qed;");
+       self.tempfiles.insert($file, tempfile);
+       let bin_file_name = self.tempfiles.get($file)
+         .unwrap()
+         .path()
+         .file_name()
+         .expect("Tempfile has no file name")
+         .to_str()
+         .expect("File name is not valid UTF-8")
+         .to_string();
+       let toml_path = self.tempdir.path().join("Cargo.toml");
+       let toml_content = format!(r#"[package]
+name = "temp_project"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[[bin]]
+name = "temp_project"
+path = "src/{}"
+"#, bin_file_name);
+       std::fs::write(&toml_path, toml_content)
+         .expect("This should be writable; qed;");
+       self
+     }
+   )*
+ };
 }
 
 impl<'a> TestBuilder<'a> {
@@ -68,8 +112,13 @@ impl<'a> TestBuilder<'a> {
 	}
 
 	add_tempfiles_from_sample_files! {
-		[with_complete_file, "complete_file.rs"],
-		[with_preserved_file, "preserved_file.rs"]
+		[crate_bin_file: with_complete_file, "complete_file.rs"]
+	}
+
+	add_tempfiles_from_sample_files! {
+		[with_non_preservable_file, "non_preservable_file.rs"],
+		[with_preserved_file, "preserved_file.rs"],
+		[with_resolved_file, "resolved_file.rs"]
 	}
 
 	pub fn get_ref_ast_file(&self, key: &'a str) -> Option<&syn_File> {
@@ -82,6 +131,10 @@ impl<'a> TestBuilder<'a> {
 
 	pub fn with_read_only_temp_dir(self) -> Self {
 		Self { with_read_only_temp_dir: true, ..self }
+	}
+
+	pub fn tempdir_path(&self) -> &Path {
+		self.tempdir.path()
 	}
 
 	pub fn tempfile_path(&self, key: &'a str) -> Option<&Path> {

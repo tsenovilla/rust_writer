@@ -13,11 +13,11 @@ use types::{DelimitersCount, Preserver};
 
 pub fn preserve_and_parse(code: &Path, preservers: Vec<Preserver>) -> Result<File, Error> {
 	let preserved_code = apply_preservers(std::fs::read_to_string(code)?, preservers);
-	Ok(syn::parse_file(&preserved_code)?)
+	Ok(syn::parse_file(&preserved_code).map_err(|_| Error::NonPreservableCode)?)
 }
 
-pub fn resolve_preserved(code: &File) -> String {
-	let code = prettyplease::unparse(code);
+pub fn resolve_preserved(ast: &File, path: &Path) -> Result<(), Error> {
+	let code = prettyplease::unparse(ast);
 	// Inside non-preserved declarative macros invocations, everything is a token so the doc
 	// comments became #[doc] in order to preserve them (tokens doesn't accept doc comments).
 	// ///TEMP_DOC comments became #[doc = "///TEMP_DOC"] which are 4 tokens in the AST. When the
@@ -31,9 +31,13 @@ pub fn resolve_preserved(code: &File) -> String {
 	// Same happens with 'type temp_marker = ();'. This lines also delete them from everywhere, not
 	// just inside declarative macros
 	let re = Regex::new(r"\s*type\s+temp_marker\s*=\s*\(\);\s*").expect("The regex is valid; qed;");
-	let code = re.replace_all(&code, "").to_string();
+	let code = re.replace_all(&code, "\n").to_string();
 	// Delete all TEMP_DOCS present in the rest of the code and return the result.
-	code.replace("///TEMP_DOC", "")
+	let code = code.replace("///TEMP_DOC", "");
+
+	std::fs::write(path, &code)?;
+
+	Ok(())
 }
 
 fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {

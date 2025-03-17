@@ -9,6 +9,6 @@ pub enum Error {
 	IO(#[from] std::io::Error),
 	#[error("{0}")]
 	Descriptive(String),
-	#[error("Syn error: `{0}`")]
-	Syn(#[from] syn::Error),
+	#[error("The code cannot be safely preserved. Check 'https://docs.rs/rust_writer/latest/rust_writer/preserver/fn.preserve_and_parse.html' for further information.")]
+	NonPreservableCode,
 }
