@@ -117,7 +117,7 @@ fn resolve_preserved_works() {
 			.is_ok());
 
 			// The preserved resolver cannot ensure formatting at 100%, but if we format it we can
-			// assert equality with the initial formatted file
+			// assert equality with the resolved file
 			assert!(rustilities::fmt::format_dir(builder.tempdir_path()).is_ok());
 
 			let actual_code =

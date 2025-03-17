@@ -13,7 +13,7 @@ use types::{DelimitersCount, Preserver};
 
 pub fn preserve_and_parse(code: &Path, preservers: Vec<Preserver>) -> Result<File, Error> {
 	let preserved_code = apply_preservers(std::fs::read_to_string(code)?, preservers);
-	Ok(syn::parse_file(&preserved_code).map_err(|_| Error::NonPreservableCode)?)
+	syn::parse_file(&preserved_code).map_err(|_| Error::NonPreservableCode)
 }
 
 pub fn resolve_preserved(ast: &File, path: &Path) -> Result<(), Error> {
