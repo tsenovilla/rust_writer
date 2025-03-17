@@ -21,6 +21,7 @@ thiserror = { workspace = true }
 tempfile = "3.16.0"
 test_builder = { workspace = true }
 rustilities = { workspace = true, features = ["parsing", "fmt"] }
+quote = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true

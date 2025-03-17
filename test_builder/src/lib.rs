@@ -118,7 +118,8 @@ impl<'a> TestBuilder<'a> {
 	add_tempfiles_from_sample_files! {
 		[with_non_preservable_file, "non_preservable_file.rs"],
 		[with_preserved_file, "preserved_file.rs"],
-		[with_resolved_file, "resolved_file.rs"]
+		[with_resolved_file, "resolved_file.rs"],
+		[with_expanded_file, "expanded_file.rs"]
 	}
 
 	pub fn get_ref_ast_file(&self, key: &'a str) -> Option<&syn_File> {

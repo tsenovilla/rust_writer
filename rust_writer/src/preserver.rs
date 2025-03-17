@@ -30,7 +30,7 @@ pub fn resolve_preserved(ast: &File, path: &Path) -> Result<(), Error> {
 	let code = re.replace_all(&code, |caps: &Captures| format!("\n{}\n", &caps[2])).to_string();
 	// Same happens with 'type temp_marker = ();'. This lines also delete them from everywhere, not
 	// just inside declarative macros
-	let re = Regex::new(r"\s*type\s+temp_marker\s*=\s*\(\);\s*").expect("The regex is valid; qed;");
+	let re = Regex::new(r"\s*type\s+temp_marker\s*=\s*\(\);").expect("The regex is valid; qed;");
 	let code = re.replace_all(&code, "\n").to_string();
 	// Delete all TEMP_DOCS present in the rest of the code and return the result.
 	let code = code.replace("///TEMP_DOC", "");

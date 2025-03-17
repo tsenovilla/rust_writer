@@ -38,6 +38,10 @@ impl MyTrait for MyStruct {
     fn other_method(&self) {
         println!("Trait method called!");
     }
+
+    fn func(&self) -> bool {
+        false
+    }
 }
 
 // An impl block with an associated function
@@ -55,11 +59,13 @@ fn main() {
 
     my_macro!(
 
-            // Nice comment
+           // Nice comment
     let a = 1; enum
-            A { B, C, D(u8, String) }
-        );
+           A { B, C, D(u8, String) } struct SomeStruct { field : u8, string : String }
+       );
 
     let instance = MyStruct::new(42, "Hello");
     instance.trait_method();
 }
+
+use std::path::Path;

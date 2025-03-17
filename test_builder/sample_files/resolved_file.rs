@@ -55,10 +55,10 @@ fn main() {
 
     my_macro!(
 
-            // Nice comment
+           // Nice comment
     let a = 1; enum
-            A { B, C, D(u8, String) }
-        );
+           A { B, C, D(u8, String) }
+       );
 
     let instance = MyStruct::new(42, "Hello");
     instance.trait_method();
