@@ -11,7 +11,10 @@ use test_builder::TestBuilder;
 
 #[mutator(ItemToTrait<'a>, ItemToTrait<'a>, ItemToImpl<'a>)]
 #[finder(ItemToTrait<'a>, ItemToTrait<'a>, ItemToImpl<'a>)]
-struct SomeStruct;
+struct SomeStruct {
+	#[allow(dead_code)]
+	useful_bool: bool,
+}
 
 #[test]
 fn modified_unit_struct() {
@@ -33,7 +36,7 @@ fn modified_unit_struct() {
 		)
 			.into();
 
-		let some_struct = SomeStruct { itemtotrait, itemtotrait_1, itemtoimpl };
+		let some_struct = SomeStruct { useful_bool: false, itemtotrait, itemtotrait_1, itemtoimpl };
 
 		let ast = builder.get_mut_ast_file("trait_and_impl_block.rs").expect("This should exist");
 
