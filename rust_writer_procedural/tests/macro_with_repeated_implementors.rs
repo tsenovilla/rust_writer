@@ -11,19 +11,18 @@ use test_builder::TestBuilder;
 
 #[mutator(ItemToTrait<'a>, ItemToTrait<'a>, ItemToImpl<'a>)]
 #[finder(ItemToTrait<'a>, ItemToTrait<'a>, ItemToImpl<'a>)]
-#[impl_from]
 struct SomeStruct;
 
 #[test]
 fn modified_unit_struct() {
 	TestBuilder::default().with_trait_and_impl_block_ast().execute(|mut builder| {
-		let item_to_trait: ItemToTrait =
+		let itemtotrait: ItemToTrait =
 			("MyTrait", TraitItem::Type(parse_quote! {type Type3: From<String>;})).into();
 
-		let item_to_trait2: ItemToTrait =
+		let itemtotrait_1: ItemToTrait =
 			("MyTrait", TraitItem::Type(parse_quote! {type Type4: From<String>;})).into();
 
-		let item_to_impl: ItemToImpl = (
+		let itemtoimpl: ItemToImpl = (
 			Some("SomeTrait"),
 			"SomeImplementor",
 			ImplItem::Fn(parse_quote! {
@@ -34,7 +33,7 @@ fn modified_unit_struct() {
 		)
 			.into();
 
-		let some_struct: SomeStruct = (item_to_trait, item_to_trait2, item_to_impl).into();
+		let some_struct = SomeStruct { itemtotrait, itemtotrait_1, itemtoimpl };
 
 		let ast = builder.get_mut_ast_file("trait_and_impl_block.rs").expect("This should exist");
 
