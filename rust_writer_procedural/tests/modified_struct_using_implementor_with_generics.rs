@@ -37,7 +37,10 @@ impl<T: std::fmt::Debug + Clone, const N: usize> VisitMut for ToyImplementor<T, 
 #[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T: std::fmt::Debug + Clone, N>)]
 #[mutator(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T: std::fmt::Debug + Clone, N>)]
 #[impl_from]
-struct SomeStruct<const N: usize>;
+struct SomeStruct<const N: usize> {
+	#[allow(dead_code)]
+	some_useful_array: [u8; N],
+}
 
 #[test]
 fn modified_struct_using_local_implementor_with_generics() {
@@ -60,7 +63,7 @@ fn modified_struct_using_local_implementor_with_generics() {
 			ToyImplementor { found: [false; 7], mutated: [true; 7], something: 0u8 };
 
 		let some_struct: SomeStruct<7, u8> =
-			(item_to_impl, item_to_trait, toy_finder_implementor).into();
+			([0; 7], item_to_impl, item_to_trait, toy_finder_implementor).into();
 
 		let ast = builder.get_mut_ast_file("trait_and_impl_block.rs").expect("This should exist");
 

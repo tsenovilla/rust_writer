@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0
 
 use rust_writer::ast::{
-	finder::ToFind,
+	mutator::ToMutate,
 	implementors::{ItemToImpl, ItemToTrait},
 };
 use rust_writer_procedural::{finder,  mutator};
-use syn::{visit::Visit, visit_mut::VisitMut};
+use syn::visit_mut::VisitMut;
 
-#[finder(ItemToImpl<'a>, ItemToTrait<'a>)]
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
+#[finder(ItemToImpl<'a>, ItemToTrait<'a>)]
 #[impl_from]
 struct SomeStruct;
 
