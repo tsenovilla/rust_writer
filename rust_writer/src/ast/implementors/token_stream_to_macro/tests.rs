@@ -22,7 +22,7 @@ fn token_stream_to_macro_finder_does_nothing_when_token_stream_empty() {
 fn token_stream_to_macro_finder_finds_token_stream_without_container() {
 	TestBuilder::default().with_macro_ast().execute(|builder| {
 		let token_stream_to_macro: TokenStreamToMacro =
-			(parse_quote! { my_macro }, None, parse_quote! { type Type1 = From<String>; }).into();
+			(parse_quote! { my_macro }, None, parse_quote! { type Type = From<String>; }).into();
 
 		let ast = builder.get_ref_ast_file("macro.rs").expect("This exists; qed;");
 		let mut finder = Finder::default().to_find(&token_stream_to_macro);
@@ -46,8 +46,7 @@ fn token_stream_to_macro_finder_finds_token_stream_with_container() {
 fn token_stream_to_macro_finder_cannot_find_macro_if_macro_path_incorrect() {
 	TestBuilder::default().with_macro_ast().execute(|builder| {
 		let token_stream_to_macro: TokenStreamToMacro =
-			(parse_quote! { other_macro }, None, parse_quote! { type Type1 = From<String>; })
-				.into();
+			(parse_quote! { other_macro }, None, parse_quote! { type Type = From<String>; }).into();
 
 		let ast = builder.get_ref_ast_file("macro.rs").expect("This exists; qed;");
 		let mut finder = Finder::default().to_find(&token_stream_to_macro);
@@ -59,7 +58,7 @@ fn token_stream_to_macro_finder_cannot_find_macro_if_macro_path_incorrect() {
 fn token_stream_to_macro_finder_cannot_find_macro_if_token_stream_incorrect() {
 	TestBuilder::default().with_macro_ast().execute(|builder| {
 		let token_stream_to_macro: TokenStreamToMacro =
-			(parse_quote! { my_macro }, None, parse_quote! { type Type1 = From<u8>; }).into();
+			(parse_quote! { my_macro }, None, parse_quote! { type Type = From<u8>; }).into();
 
 		let ast = builder.get_ref_ast_file("macro.rs").expect("This exists; qed;");
 		let mut finder = Finder::default().to_find(&token_stream_to_macro);
@@ -73,7 +72,7 @@ fn token_stream_to_macro_finder_cannot_find_inside_container_an_outer_stream() {
 		let token_stream_to_macro: TokenStreamToMacro = (
 			parse_quote! { my_macro },
 			Some(parse_quote! { SomeEnum }),
-			parse_quote! { type Type1 = From<String> },
+			parse_quote! { type Type = From<String> },
 		)
 			.into();
 
@@ -139,7 +138,7 @@ fn token_stream_to_macro_mutate_works_with_container() {
 fn token_stream_to_macro_mutate_fails_if_cannot_find_container() {
 	TestBuilder::default().with_macro_ast().execute(|mut builder| {
 		let token_to_macro: TokenStreamToMacro =
-			(parse_quote! { my_macro }, Some(parse_quote! { Type1 }), parse_quote! { D }).into();
+			(parse_quote! { my_macro }, Some(parse_quote! { Type }), parse_quote! { D }).into();
 
 		let ast = builder.get_mut_ast_file("macro.rs").expect("This exists; qed;");
 

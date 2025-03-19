@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 
-pub mod types;
+mod types;
 
 #[cfg(test)]
 mod tests;
@@ -9,10 +9,11 @@ use crate::Error;
 use regex::{Captures, Regex};
 use std::path::Path;
 use syn::File;
-use types::{DelimitersCount, Preserver};
+use types::DelimitersCount;
+pub use types::Preserver;
 
-pub fn preserve_and_parse(code: &Path, preservers: Vec<Preserver>) -> Result<File, Error> {
-	let preserved_code = apply_preservers(std::fs::read_to_string(code)?, preservers);
+pub fn preserve_and_parse(code: &Path, preservers: &[&Preserver]) -> Result<File, Error> {
+	let preserved_code = apply_preservers(&std::fs::read_to_string(code)?, preservers);
 	syn::parse_file(&preserved_code).map_err(|_| Error::NonPreservableCode)
 }
 
@@ -30,17 +31,19 @@ pub fn resolve_preserved(ast: &File, path: &Path) -> Result<(), Error> {
 	let code = re.replace_all(&code, |caps: &Captures| format!("\n{}\n", &caps[2])).to_string();
 	// Same happens with 'type temp_marker = ();'. This lines also delete them from everywhere, not
 	// just inside declarative macros
-	let re = Regex::new(r"\s*type\s+temp_marker\s*=\s*\(\);").expect("The regex is valid; qed;");
-	let code = re.replace_all(&code, "\n").to_string();
+	let re = Regex::new(r"(?m)^\s*type\s*temp_marker\s*=\s*\(\);[ \t]*\n?")
+		.expect("The regex is valid; qed;");
+	let code = re.replace_all(&code, "").to_string();
 	// Delete all TEMP_DOCS present in the rest of the code and return the result.
-	let code = code.replace("///TEMP_DOC", "");
+	let re = Regex::new(r"(?m)^\s*///TEMP_DOC").expect("The regex is valid; qed;");
+	let code = re.replace_all(&code, "").to_string();
 
 	std::fs::write(path, &code)?;
 
 	Ok(())
 }
 
-fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
+fn apply_preservers(code: &str, preservers: &[&Preserver]) -> String {
 	let mut delimiters_counts = DelimitersCount::new();
 
 	let mut lines = code.lines();
@@ -53,15 +56,14 @@ fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
 	while let Some(line) = lines.next() {
 		let trimmed_line = line.trim_start();
 		if let Some(index) = preservers
-			.iter_mut()
+			.iter()
 			.position(|preserver| trimmed_line.starts_with(preserver.lookup()))
 		{
 			delimiters_counts.count(line);
 			result.push(line.to_owned());
 			result.push("\n".to_owned());
 
-			let mut preserver = preservers.swap_remove(index);
-			let inner_preserver = preserver.take_inner();
+			let inner_preserver = preservers[index].get_inner();
 
 			if let Some(inner_preserver_pointer) = inner_preserver {
 				let mut inner_code = String::new();
@@ -69,7 +71,7 @@ fn apply_preservers(code: String, mut preservers: Vec<Preserver>) -> String {
 					delimiters_counts.count(line);
 
 					if delimiters_counts.is_complete() {
-						result.push(apply_preservers(inner_code, vec![*inner_preserver_pointer]));
+						result.push(apply_preservers(&inner_code, &[inner_preserver_pointer]));
 						result.push(line.to_owned());
 						result.push("\n".to_owned());
 						break;

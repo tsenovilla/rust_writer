@@ -17,4 +17,5 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }} 
         run: |
-          cargo publish -p rust_writer -p rust_writer_procedural
+          cargo publish -p rust_writer_procedural &&
+          cargo publish -p rust_writer

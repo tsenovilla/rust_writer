@@ -11,7 +11,7 @@ use syn::{parse_quote, visit::Visit, visit_mut::VisitMut, ImplItem, TraitItem};
 use test_builder::TestBuilder;
 
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
-#[finder(ItemToImpl<'a>, ItemToTrait<'a>)]
+#[finder(ItemToTrait<'a>, ItemToImpl<'a>)]
 #[impl_from]
 struct SomeStruct<T: Clone + std::fmt::Debug + From<String>> {
 	some_super_useful_field: T,

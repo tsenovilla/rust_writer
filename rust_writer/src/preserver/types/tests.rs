@@ -12,22 +12,22 @@ fn create_preserver() {
 #[test]
 fn add_inners_to_preserver() {
 	let mut preserver = Preserver::new("root");
-	preserver.add_inners(vec!["inner1", "inner2", "inner3"]);
+	preserver.add_inners(&["inner1", "inner2", "inner3"]);
 
 	assert_eq!(preserver.lookup(), "root");
-	let mut inner = preserver.take_inner().expect("No inner");
+	let mut inner = preserver.get_inner().expect("No inner");
 	assert_eq!(inner.lookup(), "inner1");
-	inner = inner.take_inner().expect("No inner");
+	inner = inner.get_inner().expect("No inner");
 	assert_eq!(inner.lookup(), "inner2");
-	inner = inner.take_inner().expect("No inner");
+	inner = inner.get_inner().expect("No inner");
 	assert_eq!(inner.lookup(), "inner3");
-	assert!(inner.take_inner().is_none());
+	assert!(inner.get_inner().is_none());
 }
 
 #[test]
 fn preserver_should_handle_empty_inners() {
 	let mut preserver = Preserver::new("root");
-	preserver.add_inners(vec![]);
+	preserver.add_inners(&[]);
 	assert_eq!(preserver.lookup(), "root");
 	assert!(preserver.inner.is_none());
 }

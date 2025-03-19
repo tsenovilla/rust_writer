@@ -14,7 +14,7 @@ impl Preserver {
 		Self { lookup: lookup.to_owned(), inner: None }
 	}
 
-	pub fn add_inners(&mut self, lookups: Vec<&str>) {
+	pub fn add_inners(&mut self, lookups: &[&str]) {
 		let mut current = self;
 		for lookup in lookups {
 			current.inner = Some(Box::new(Self::new(lookup)));
@@ -26,8 +26,8 @@ impl Preserver {
 		&self.lookup
 	}
 
-	pub fn take_inner(&mut self) -> Option<Box<Preserver>> {
-		self.inner.take()
+	pub fn get_inner(&self) -> Option<&Preserver> {
+		self.inner.as_deref()
 	}
 }
 

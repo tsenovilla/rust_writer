@@ -1,0 +1,19 @@
+error: #[mutator]/#[finder] combination is only possible if the set of implementors in both attributes is the same.
+  --> tests/ui/parse_attrs_fails_if_combined_macros_dont_have_same_implementor_set.rs:13:8
+   |
+13 | struct SomeStruct;
+   |        ^^^^^^^^^^
+
+error[E0412]: cannot find type `SomeStruct` in this scope
+  --> tests/ui/parse_attrs_fails_if_combined_macros_dont_have_same_implementor_set.rs:13:8
+   |
+13 | struct SomeStruct;
+   |        ^^^^^^^^^^ not found in this scope
+
+warning: unused import: `visit_mut::VisitMut`
+ --> tests/ui/parse_attrs_fails_if_combined_macros_dont_have_same_implementor_set.rs:8:25
+  |
+8 | use syn::{visit::Visit, visit_mut::VisitMut};
+  |                         ^^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default

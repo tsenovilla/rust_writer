@@ -5,7 +5,8 @@ use syn::{
 	parse::{Parse, ParseStream},
 	parse_quote,
 	punctuated::Punctuated,
-	Error, Fields, FieldsNamed, ItemStruct, Path, Result, Token, Type,
+	Error, Fields, FieldsNamed, GenericArgument, ItemStruct, Path, PathArguments, Result, Token,
+	Type, TypePath,
 };
 
 mod keywords {
@@ -55,7 +56,7 @@ impl Parse for MacroAttrs {
 pub enum InnerAttr {
 	Nothing,
 	AlreadyExpanded,
-	ImplFrom,
+    ImplFrom
 }
 
 type AlreadyExpandedStruct = bool;
@@ -71,48 +72,36 @@ impl InnerAttr {
 	}
 }
 
-const IMPL_FROM_ERR_MSG: &str = "#[impl_from] is only allowed in structs annotated with #[mutator]/#[finder] at most once or structs annotated with #[mutator] and #[finder] such that the outermost macro implementors set contains the innermost macro implementors set.";
+const COMBINED_MACROS_MSG: &str = "#[mutator]/#[finder] combination is only possible if the set of implementors in both attributes is the same.";
 
 impl MacroAttrs {
 	pub(crate) fn validate_struct(&self, item_struct: &mut ItemStruct) -> Result<InnerAttr> {
-		let already_expanded = item_struct
-			.attrs
-			.contains(&parse_quote!(#[rust_writer::ast::macros::already_expanded])) ||
-			item_struct
-				.attrs
-				.contains(&parse_quote!(#[rust_writer_procedural::already_expanded])) ||
-			item_struct.attrs.contains(&parse_quote!(#[already_expanded]));
-
-		let already_impl_from = item_struct
-			.attrs
-			.contains(&parse_quote!(#[rust_writer::ast::macros::already_impl_from])) ||
-			item_struct
-				.attrs
-				.contains(&parse_quote!(#[rust_writer_procedural::already_impl_from])) ||
-			item_struct.attrs.contains(&parse_quote!(#[already_impl_from]));
+		let already_expanded =
+			item_struct.attrs.contains(&parse_quote!(#[rust_writer::ast::already_expanded])) ||
+				item_struct
+					.attrs
+					.contains(&parse_quote!(#[rust_writer_procedural::already_expanded])) ||
+				item_struct.attrs.contains(&parse_quote!(#[already_expanded]));
 
 		let impl_from = item_struct.attrs.contains(&parse_quote!(#[impl_from]));
 
-		match (&item_struct.fields, already_expanded, already_impl_from, impl_from) {
-			(_, _, true, true) => Err(Error::new(
-				item_struct.ident.span(),
-				"Cannot use #[impl_from] in an struct annotated with #[already_impl_from]",
-			)),
-			(Fields::Unit, true, _, _) => Err(Error::new(
+		match (&item_struct.fields, already_expanded, impl_from) {
+			(Fields::Unit, true,  _) => Err(Error::new(
 				item_struct.ident.span(),
 				"Cannot use #[already_expanded] attribute in an unit struct",
 			)),
-			(Fields::Unit, _, _, false) => Ok(InnerAttr::Nothing),
-			(Fields::Unit, _, _, true) => {
+			(Fields::Unit, _, false) => Ok(InnerAttr::Nothing),
+			(Fields::Unit, _, true) => {
 				helpers::remove_impl_from_attr(item_struct);
 				Ok(InnerAttr::ImplFrom)
 			},
-			(Fields::Named(FieldsNamed { named, .. }), true, true, _) => {
+			(Fields::Named(FieldsNamed { named, .. }), true, _) => {
 				// Just a toy path to include in struct_path_values instead of non_path arguments
 				let toy_path: Path =
 					parse_quote!(some::unlikely::used::path::segment::as_::implementor::name);
-				// From block has been already implemented. Check that the implementors are all
-				// contained in the struct, so the expansion won't break the From trait
+
+				// The struct has been already expanded. #[mutator] and #[finder] can only be used with the
+                // same implementors set can only be used with the same implementors set..
 				let struct_path_values: Vec<&Path> = named
 					.iter()
 					.map(|field| match &field.ty {
@@ -123,23 +112,48 @@ impl MacroAttrs {
 					})
 					.collect();
 
-				let implementors_vec: Vec<&Path> = self
+				let implementors_vec: Vec<Path> = self
 					.0
 					.iter()
 					.map(|macro_attr| match macro_attr {
 						MacroAttr::CrateImplementor(path) => path,
 						MacroAttr::LocalImplementor(path) => path,
 					})
+					.map(|path| {
+						// The struct path values only contains the generics idents, not the trait
+						// bounds
+						let mut path = path.clone();
+						let last_path_segment = path
+							.segments
+							.last_mut()
+							.expect("At this point, implementors are valid paths; qed;");
+
+						if let PathArguments::AngleBracketed(ref mut generics) =
+							last_path_segment.arguments
+						{
+							generics.args.iter_mut().for_each(|argument| {
+								if let GenericArgument::Constraint(ref mut generic) = argument {
+									let generic_ident = &generic.ident;
+									let generic_as_path: TypePath = parse_quote! { #generic_ident };
+									*argument = GenericArgument::Type(Type::Path(generic_as_path));
+								}
+							});
+						}
+
+						path
+					})
 					.collect();
 
-				if !implementors_vec.iter().all(|path| struct_path_values.contains(path)) {
-					return Err(Error::new(item_struct.ident.span(), IMPL_FROM_ERR_MSG));
+				match struct_path_values.iter().position(|&path| *path == implementors_vec[0]) {
+					Some(position)
+						if &struct_path_values[position..] ==
+							implementors_vec.iter().collect::<Vec<&Path>>() =>
+						Ok(InnerAttr::AlreadyExpanded),
+					_ => Err(Error::new(item_struct.ident.span(), COMBINED_MACROS_MSG)),
 				}
-				Ok(InnerAttr::AlreadyExpanded)
 			},
-			(Fields::Named(_), true, _, false) => Ok(InnerAttr::AlreadyExpanded),
-			(Fields::Named(_), false, _, false) => Ok(InnerAttr::Nothing),
-			(Fields::Named(_), _, _, true) => {
+			(Fields::Named(_),  _, false) => Ok(InnerAttr::Nothing),
+			(Fields::Named(_), _, true) => {
 				helpers::remove_impl_from_attr(item_struct);
 				Ok(InnerAttr::ImplFrom)
 			},

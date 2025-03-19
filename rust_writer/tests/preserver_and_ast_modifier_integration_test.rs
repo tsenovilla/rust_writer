@@ -4,10 +4,10 @@ use quote::quote;
 use rust_writer::{
 	ast::{
 		implementors::{ItemToFile, ItemToImpl, TokenStreamToMacro},
-		macros::mutator,
+		mutator,
 		mutator::{Mutator, ToMutate},
 	},
-	preserver::types::Preserver,
+	preserver::Preserver,
 };
 use syn::{parse_quote, visit_mut::VisitMut, ImplItem, Item};
 use test_builder::TestBuilder;
@@ -32,12 +32,12 @@ fn preserver_and_ast_modifier_integration() {
 				std::fs::read_to_string(&expanded_file_path).expect("File should be readable");
 
 			let mut preserver1 = Preserver::new("impl MyTrait for MyStruct");
-			preserver1.add_inners(vec!["fn trait_method"]);
+			preserver1.add_inners(&["fn trait_method"]);
 			let preserver2 = Preserver::new("fn main");
 
 			let mut ast = rust_writer::preserver::preserve_and_parse(
 				complete_file_path,
-				vec![preserver1, preserver2],
+				&[&preserver1, &preserver2],
 			)
 			.expect("Preserves should be applied; qed;");
 
@@ -45,10 +45,11 @@ fn preserver_and_ast_modifier_integration() {
 				Some("MyTrait"),
 				"MyStruct",
 				ImplItem::Fn(parse_quote! {
-				fn func(&self) -> bool{
-							false
-						 }
-				  }),
+				///TEMP_DOC
+						fn func(&self) -> bool{
+									false
+								 }
+						  }),
 			)
 				.into();
 
@@ -77,10 +78,6 @@ fn preserver_and_ast_modifier_integration() {
 			assert!(mutator.mutate(&mut ast).is_ok());
 
 			assert!(rust_writer::preserver::resolve_preserved(&ast, complete_file_path).is_ok());
-
-			// The preserved resolver cannot ensure formatting at 100%, but if we format it we can
-			// assert equality with the resolved file
-			assert!(rustilities::fmt::format_dir(builder.tempdir_path()).is_ok());
 
 			let actual_code =
 				std::fs::read_to_string(complete_file_path).expect("File should be readable");

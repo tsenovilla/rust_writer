@@ -33,7 +33,7 @@ where
 {
 	let mut new_implementors_idents = Vec::new();
 	let mut new_implementors = Vec::new();
-	let mut implementors_idents = Vec::new();
+	let mut implementors_idents: Vec<Ident> = Vec::new();
 
 	for implementor in iter {
 		let mut implementor = implementor.clone();
@@ -43,10 +43,21 @@ where
 			.last_mut()
 			.expect("At this point, implementors are valid paths; qed;");
 
-		let ident = Ident::new(
-			&last_implementor_segment.ident.to_string().to_lowercase(),
-			Span::call_site(),
-		);
+		let implementor_ident_value = last_implementor_segment.ident.to_string().to_lowercase();
+
+		let ident_count = implementors_idents
+			.iter()
+			.filter(|&ident| *ident == implementor_ident_value)
+			.count();
+
+		let ident = if ident_count > 0 {
+			Ident::new(
+				&(implementor_ident_value + "_" + &ident_count.to_string()),
+				Span::call_site(),
+			)
+		} else {
+			Ident::new(&implementor_ident_value, Span::call_site())
+		};
 
 		if let PathArguments::AngleBracketed(ref mut generics) = last_implementor_segment.arguments
 		{
@@ -75,7 +86,6 @@ where
 							struct_.generics.params.push(generic_param);
 						}
 					},
-
 					GenericParam::Const(_) => unreachable!("{}", UNREACHABLE_MESSAGE),
 				}
 			});

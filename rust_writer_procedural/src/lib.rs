@@ -27,12 +27,9 @@ pub fn impl_finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
 	finder::impl_finder(attrs, item)
 }
 
+#[doc(hidden)]
 #[proc_macro_attribute]
 pub fn already_expanded(_: TokenStream, item: TokenStream) -> TokenStream {
 	item
 }
 
-#[proc_macro_attribute]
-pub fn already_impl_from(_: TokenStream, item: TokenStream) -> TokenStream {
-	item
-}

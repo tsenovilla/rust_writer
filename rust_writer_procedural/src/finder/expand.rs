@@ -69,8 +69,6 @@ pub(crate) fn expand_finder(parsed: MacroFinderMutatorParsed) -> TokenStream {
 				}
 			}
 		};
-
-		struct_.attrs.push(parse_quote!(#[rust_writer::ast::macros::already_impl_from]));
 	}
 
 	let finder_wrapper = quote! {
@@ -146,7 +144,7 @@ pub(crate) fn expand_finder(parsed: MacroFinderMutatorParsed) -> TokenStream {
 	};
 
 	if !already_expanded {
-		struct_.attrs.push(parse_quote!(#[rust_writer::ast::macros::already_expanded]));
+		struct_.attrs.push(parse_quote!(#[rust_writer::ast::already_expanded]));
 		struct_.attrs.push(parse_quote!(#[derive(Debug, Clone)]));
 	}
 

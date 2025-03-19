@@ -22,12 +22,12 @@ fn apply_preservers_works() {
 
 			let preserver1 = Preserver::new("struct MyStruct");
 			let mut preserver2 = Preserver::new("impl MyTrait for MyStruct");
-			preserver2.add_inners(vec!["fn trait_method"]);
+			preserver2.add_inners(&["fn trait_method"]);
 			let preserver3 = Preserver::new("fn main");
 
 			assert_eq!(
 				preserved_code,
-				apply_preservers(code, vec![preserver1, preserver2, preserver3])
+				apply_preservers(&code, &[&preserver1, &preserver2, &preserver3])
 			);
 		});
 }
@@ -43,14 +43,14 @@ fn preserve_and_parse_works() {
 
 			let preserver1 = Preserver::new("struct MyStruct");
 			let mut preserver2 = Preserver::new("impl MyTrait for MyStruct");
-			preserver2.add_inners(vec!["fn trait_method"]);
+			preserver2.add_inners(&["fn trait_method"]);
 			let preserver3 = Preserver::new("fn main");
 
 			assert_eq!(
 				*preserved_ast,
 				preserve_and_parse(
 					builder.tempfile_path("complete_file.rs").expect("This exists; qed;"),
-					vec![preserver1, preserver2, preserver3]
+					&[&preserver1, &preserver2, &preserver3]
 				)
 				.expect("This should be Ok; qed;")
 			);
@@ -63,15 +63,10 @@ fn preserve_and_parse_fails_if_path_not_readable() {
 		.with_complete_file()
 		.with_read_only_temp_dir()
 		.execute(|builder| {
-			let preserver1 = Preserver::new("struct MyStruct");
-			let mut preserver2 = Preserver::new("impl MyTrait for MyStruct");
-			preserver2.add_inners(vec!["fn trait_method"]);
-			let preserver3 = Preserver::new("fn main");
-
 			assert!(matches!(
 				preserve_and_parse(
 					builder.tempfile_path("complete_file.rs").expect("This exists; qed;"),
-					vec![preserver1, preserver2, preserver3]
+					&[]
 				), Err(Error::IO(err)) if err.kind() == ErrorKind::PermissionDenied ));
 		});
 }
@@ -81,13 +76,13 @@ fn preserve_and_parse_fails_if_non_preservable_code() {
 	TestBuilder::default().with_non_preservable_file().execute(|builder| {
 		let preserver1 = Preserver::new("struct MyStruct");
 		let mut preserver2 = Preserver::new("impl MyTrait for MyStruct");
-		preserver2.add_inners(vec!["fn trait_method"]);
+		preserver2.add_inners(&["fn trait_method"]);
 		let preserver3 = Preserver::new("fn main");
 
 		assert!(matches!(
 			preserve_and_parse(
 				builder.tempfile_path("non_preservable_file.rs").expect("This exists; qed;"),
-				vec![preserver1, preserver2, preserver3]
+				&[&preserver1, &preserver2, &preserver3]
 			),
 			Err(Error::NonPreservableCode)
 		));
@@ -115,10 +110,6 @@ fn resolve_preserved_works() {
 				complete_file_path
 			)
 			.is_ok());
-
-			// The preserved resolver cannot ensure formatting at 100%, but if we format it we can
-			// assert equality with the resolved file
-			assert!(rustilities::fmt::format_dir(builder.tempdir_path()).is_ok());
 
 			let actual_code =
 				std::fs::read_to_string(complete_file_path).expect("File should be readable");
