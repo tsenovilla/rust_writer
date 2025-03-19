@@ -56,7 +56,7 @@ impl Parse for MacroAttrs {
 pub enum InnerAttr {
 	Nothing,
 	AlreadyExpanded,
-    ImplFrom
+	ImplFrom,
 }
 
 type AlreadyExpandedStruct = bool;
@@ -86,7 +86,7 @@ impl MacroAttrs {
 		let impl_from = item_struct.attrs.contains(&parse_quote!(#[impl_from]));
 
 		match (&item_struct.fields, already_expanded, impl_from) {
-			(Fields::Unit, true,  _) => Err(Error::new(
+			(Fields::Unit, true, _) => Err(Error::new(
 				item_struct.ident.span(),
 				"Cannot use #[already_expanded] attribute in an unit struct",
 			)),
@@ -100,8 +100,9 @@ impl MacroAttrs {
 				let toy_path: Path =
 					parse_quote!(some::unlikely::used::path::segment::as_::implementor::name);
 
-				// The struct has been already expanded. #[mutator] and #[finder] can only be used with the
-                // same implementors set can only be used with the same implementors set..
+				// The struct has been already expanded. #[mutator] and #[finder] can only be used
+				// with the same implementors set can only be used with the same implementors
+				// set..
 				let struct_path_values: Vec<&Path> = named
 					.iter()
 					.map(|field| match &field.ty {
@@ -152,7 +153,7 @@ impl MacroAttrs {
 					_ => Err(Error::new(item_struct.ident.span(), COMBINED_MACROS_MSG)),
 				}
 			},
-			(Fields::Named(_),  _, false) => Ok(InnerAttr::Nothing),
+			(Fields::Named(_), _, false) => Ok(InnerAttr::Nothing),
 			(Fields::Named(_), _, true) => {
 				helpers::remove_impl_from_attr(item_struct);
 				Ok(InnerAttr::ImplFrom)

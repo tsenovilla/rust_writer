@@ -32,4 +32,3 @@ pub fn impl_finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
 pub fn already_expanded(_: TokenStream, item: TokenStream) -> TokenStream {
 	item
 }
-
