@@ -147,7 +147,7 @@ impl MacroAttrs {
 
 				match struct_path_values.iter().position(|&path| *path == implementors_vec[0]) {
 					Some(position)
-						if &struct_path_values[position..] ==
+						if struct_path_values[position..] ==
 							implementors_vec.iter().collect::<Vec<&Path>>() =>
 						Ok(InnerAttr::AlreadyExpanded),
 					_ => Err(Error::new(item_struct.ident.span(), COMBINED_MACROS_MSG)),
