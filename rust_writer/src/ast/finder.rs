@@ -36,7 +36,7 @@ where
 	}
 }
 
-impl<'a, T, const N: usize> Finder<'a, T, N>
+impl<T, const N: usize> Finder<'_, T, N>
 where
 	T: Debug,
 {

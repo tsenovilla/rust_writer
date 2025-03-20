@@ -42,7 +42,7 @@ where
 	}
 }
 
-impl<'a, T, const N: usize> Mutator<'a, T, N>
+impl<T, const N: usize> Mutator<'_, T, N>
 where
 	T: Debug + Clone,
 {
