@@ -1,12 +1,12 @@
 error[E0277]: `A` doesn't implement `Debug`
  --> tests/ui/mutator_fails_if_implementor_isnt_debug.rs:7:1
   |
-7 | #[impl_mutator]
-  | ^^^^^^^^^^^^^^^ `A` cannot be formatted using `{:?}`
+7 | #[local_mutator]
+  | ^^^^^^^^^^^^^^^^ `A` cannot be formatted using `{:?}`
   |
   = help: the trait `Debug` is not implemented for `A`
   = note: add `#[derive(Debug)]` to `A` or manually `impl Debug for A`
-  = note: this error originates in the macro `$crate::__export::format_args` which comes from the expansion of the attribute macro `impl_mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the macro `$crate::__export::format_args` which comes from the expansion of the attribute macro `local_mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
 help: consider annotating `A` with `#[derive(Debug)]`
   |
 9 + #[derive(Debug)]

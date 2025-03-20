@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 
 use rust_writer::ast::mutator::ToMutate;
-use rust_writer_procedural::{impl_mutator, mutator};
+use rust_writer_procedural::{local_mutator, mutator};
 use syn::visit_mut::VisitMut;
 
-#[impl_mutator]
+#[local_mutator]
 #[derive(Debug)]
 struct A {
 	mutated: [bool; 1],

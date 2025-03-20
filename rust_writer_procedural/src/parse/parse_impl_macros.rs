@@ -5,7 +5,7 @@ use syn::{
 	Result, Token, Type, TypeArray, WhereClause,
 };
 
-// The content of #[impl_finder]/#[impl_mutator] macros
+// The content of #[local_finder]/#[local_mutator] macros
 pub(crate) struct MacroImplParsed {
 	pub(crate) struct_: ItemStruct,
 	pub(crate) generics_declarations: Punctuated<GenericParam, Token![,]>,

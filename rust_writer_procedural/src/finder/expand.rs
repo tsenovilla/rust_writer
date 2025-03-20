@@ -183,7 +183,7 @@ pub(crate) fn expand_finder(parsed: MacroFinderMutatorParsed) -> TokenStream {
 	}
 }
 
-pub(crate) fn expand_impl_finder(
+pub(crate) fn expand_local_finder(
 	visit_lifetime: LifetimeParam,
 	parsed: MacroImplParsed,
 ) -> TokenStream {
@@ -202,7 +202,7 @@ pub(crate) fn expand_impl_finder(
 			quote! {#visit_lifetime,}
 		};
 
-	let impl_finder = quote! {
+	let local_finder = quote! {
 		impl<#visit_lifetime_declaration #generics_declarations>
 		#struct_name<#generics_idents>
 		#where_clause
@@ -215,6 +215,6 @@ pub(crate) fn expand_impl_finder(
 	};
 
 	quote! {
-		#impl_finder
+		#local_finder
 	}
 }

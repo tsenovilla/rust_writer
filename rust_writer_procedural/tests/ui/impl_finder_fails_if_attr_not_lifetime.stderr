@@ -1,5 +1,0 @@
-error: expected lifetime
- --> tests/ui/impl_finder_fails_if_attr_not_lifetime.rs:5:15
-  |
-5 | #[impl_finder(T)]
-  |               ^

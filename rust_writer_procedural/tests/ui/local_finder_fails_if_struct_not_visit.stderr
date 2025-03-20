@@ -1,10 +1,10 @@
 error[E0599]: no method named `visit_file` found for mutable reference `&mut SomeStruct` in the current scope
- --> tests/ui/impl_finder_fails_if_struct_not_visit.rs:5:1
+ --> tests/ui/local_finder_fails_if_struct_not_visit.rs:5:1
   |
-5 | #[impl_finder('a)]
-  | ^^^^^^^^^^^^^^^^^^ method not found in `&mut SomeStruct`
+5 | #[local_finder('a)]
+  | ^^^^^^^^^^^^^^^^^^^ method not found in `&mut SomeStruct`
   |
   = help: items from traits can only be used if the trait is implemented and in scope
   = note: the following trait defines an item `visit_file`, perhaps you need to implement it:
           candidate #1: `Visit`
-  = note: this error originates in the attribute macro `impl_finder` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the attribute macro `local_finder` (in Nightly builds, run with -Z macro-backtrace for more info)

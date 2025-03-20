@@ -1,0 +1,5 @@
+error: expected lifetime
+ --> tests/ui/local_finder_fails_if_attr_not_lifetime.rs:5:16
+  |
+5 | #[local_finder(T)]
+  |                ^

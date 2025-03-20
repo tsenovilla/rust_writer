@@ -6,12 +6,12 @@ use rust_writer::ast::{
 	mutator::{Mutator, ToMutate},
 };
 
-use rust_writer_procedural::{finder, impl_finder, impl_mutator, mutator};
+use rust_writer_procedural::{finder, local_finder, local_mutator, mutator};
 use syn::{parse_quote, visit::Visit, visit_mut::VisitMut, ImplItem, TraitItem};
 use test_builder::TestBuilder;
 
-#[impl_finder('a)]
-#[impl_mutator]
+#[local_finder('a)]
+#[local_mutator]
 #[derive(Debug, Clone)]
 struct ToyImplementor<T: std::fmt::Debug + Clone, const N: usize> {
 	found: [bool; N],

@@ -16,14 +16,14 @@ pub(crate) fn finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
 	}
 }
 
-pub(crate) fn impl_finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
+pub(crate) fn local_finder(attrs: TokenStream, item: TokenStream) -> TokenStream {
 	let mut finished = item.clone();
 
 	let visit_lifetime = parse_macro_input!(attrs as LifetimeParam);
 	let struct_def = parse_macro_input!(item as ItemStruct);
 
 	let generated: TokenStream = match MacroImplParsed::try_from(struct_def, "found") {
-		Ok(parsed) => expand::expand_impl_finder(visit_lifetime, parsed).into(),
+		Ok(parsed) => expand::expand_local_finder(visit_lifetime, parsed).into(),
 		Err(err) => err.to_compile_error().into(),
 	};
 

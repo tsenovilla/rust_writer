@@ -181,7 +181,7 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 	}
 }
 
-pub(crate) fn expand_impl_mutator(parsed: MacroImplParsed) -> TokenStream {
+pub(crate) fn expand_local_mutator(parsed: MacroImplParsed) -> TokenStream {
 	let MacroImplParsed { struct_, generics_idents, where_clause, generics_declarations } = parsed;
 
 	let struct_name = &struct_.ident;

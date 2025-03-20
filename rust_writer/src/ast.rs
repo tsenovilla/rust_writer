@@ -83,8 +83,8 @@
 //! # Combining implementors
 //!
 //! It was so good up to this point, but creating a new `Finder`/`Mutator` for each AST operation
-//! may feel a bit cumbersome in some situations. The 
-//! [`#[finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.finder.html) and 
+//! may feel a bit cumbersome in some situations. The
+//! [`#[finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.finder.html) and
 //! [`#[mutator]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.mutator.html) macros come in to combine several
 //! implementors into a new one capable of executing all operations simultaneously.
 //!
@@ -165,10 +165,10 @@
 //! the orphan rule, so, what to do in this case? 🤔🤔🤔
 //!
 //! There's basically two approaches:
-//! 1. If the implementor to define isn't quite linked to the project where it's needed, open a **PR**
-//!    to the rust_writer crate! That way everybody will benefit of the new implementor.
-//! 1. Use the [`#[impl_finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.impl_finder.html)
-//!    and [`#[impl_mutator]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.impl_mutator.html)
+//! 1. If the implementor to define isn't quite linked to the project where it's needed, open a
+//!    **PR** to the rust_writer crate! That way everybody will benefit of the new implementor.
+//! 1. Use the [`#[local_finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.local_finder.html)
+//!    and [`#[local_mutator]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.local_mutator.html)
 //!    macros to define a local implementor.
 
 pub mod finder;

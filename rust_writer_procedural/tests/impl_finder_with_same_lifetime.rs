@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use rust_writer_procedural::impl_finder;
+use rust_writer_procedural::local_finder;
 use syn::{parse_quote, visit::Visit, ItemTrait, TraitItem};
 use test_builder::TestBuilder;
 
 // A custom finder emulating ItemToTrait
-#[impl_finder('a)]
+#[local_finder('a)]
 #[derive(Debug)]
 struct SomeStruct<'a, T: Clone + std::fmt::Debug> {
 	found: [bool; 1],
@@ -24,7 +24,7 @@ impl<'a, T: Clone + std::fmt::Debug> Visit<'a> for SomeStruct<'a, T> {
 }
 
 #[test]
-fn impl_finder_struct_with_same_lifetime() {
+fn local_finder_struct_with_same_lifetime() {
 	TestBuilder::default().with_trait_ast().execute(|builder| {
 		let mut some_struct = SomeStruct {
 			found: [false],

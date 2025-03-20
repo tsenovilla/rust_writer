@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use rust_writer_procedural::impl_mutator;
+use rust_writer_procedural::local_mutator;
 use syn::visit_mut::VisitMut;
 
-#[impl_mutator]
+#[local_mutator]
 struct SomeStruct {
 	mutated: [bool; 1],
 }

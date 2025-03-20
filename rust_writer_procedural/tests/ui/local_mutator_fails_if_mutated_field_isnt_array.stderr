@@ -1,5 +1,5 @@
 error: Expected a field named mutated being [bool;N] inside struct.
- --> tests/ui/impl_mutator_fails_if_mutated_field_isnt_array.rs:6:8
+ --> tests/ui/local_mutator_fails_if_mutated_field_isnt_array.rs:6:8
   |
 6 | struct SomeStruct {
   |        ^^^^^^^^^^

@@ -7,12 +7,12 @@ use rust_writer::{
 	},
 	Error,
 };
-use rust_writer_procedural::impl_mutator;
+use rust_writer_procedural::local_mutator;
 use syn::{parse_quote, visit_mut::VisitMut, ItemTrait, TraitItem};
 use test_builder::TestBuilder;
 
 // A custom mutator emulating ItemToTrait
-#[impl_mutator]
+#[local_mutator]
 #[derive(Debug)]
 struct SomeStruct<'a, T: Clone + std::fmt::Debug> {
 	mutated: [bool; 1],
@@ -32,7 +32,7 @@ impl<'a, T: Clone + std::fmt::Debug> VisitMut for SomeStruct<'a, T> {
 }
 
 #[test]
-fn impl_mutator_struct_mutates() {
+fn local_mutator_struct_mutates() {
 	TestBuilder::default().with_trait_ast().execute(|mut builder| {
 		let mut some_struct = SomeStruct {
 			mutated: [false],
@@ -57,7 +57,7 @@ fn impl_mutator_struct_mutates() {
 }
 
 #[test]
-fn impl_mutator_struct_fails_if_unable_to_mutate() {
+fn local_mutator_struct_fails_if_unable_to_mutate() {
 	TestBuilder::default().with_trait_ast().execute(|mut builder| {
 		let mut some_struct = SomeStruct {
 			mutated: [false],

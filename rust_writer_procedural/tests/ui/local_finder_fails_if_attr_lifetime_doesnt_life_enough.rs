@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use rust_writer_procedural::impl_finder;
+use rust_writer_procedural::local_finder;
 use syn::visit::Visit;
 
 // A custom finder emulating ItemToTrait
-#[impl_finder('b)]
+#[local_finder('b)]
 #[derive(Debug)]
 struct SomeStruct<'a, T: Clone + std::fmt::Debug> {
 	found: [bool; 1],
