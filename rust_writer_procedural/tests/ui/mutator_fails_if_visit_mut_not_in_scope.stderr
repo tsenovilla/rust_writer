@@ -4,7 +4,7 @@ error[E0599]: no method named `visit_file_mut` found for struct `Mutator` in the
 6 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
- ::: $CARGO/syn-2.0.98/src/gen/visit_mut.rs
+ ::: $CARGO/syn-2.0.100/src/gen/visit_mut.rs
   |
   |     fn visit_file_mut(&mut self, i: &mut crate::File) {
   |        -------------- the method is available for `Mutator<'_, ItemToTrait<'_>, 1>` here
@@ -26,7 +26,7 @@ error[E0599]: no method named `visit_file_mut` found for struct `Mutator` in the
 6 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
- ::: $CARGO/syn-2.0.98/src/gen/visit_mut.rs
+ ::: $CARGO/syn-2.0.100/src/gen/visit_mut.rs
   |
   |     fn visit_file_mut(&mut self, i: &mut crate::File) {
   |        -------------- the method is available for `Mutator<'_, ItemToImpl<'_>, 1>` here
