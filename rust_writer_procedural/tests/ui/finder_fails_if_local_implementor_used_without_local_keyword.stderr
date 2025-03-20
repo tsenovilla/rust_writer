@@ -1,0 +1,29 @@
+error[E0277]: the trait bound `Finder<'_, EmptyFinder, 1>: ToFind<'_, LocalImplementor<T>, _>` is not satisfied
+  --> tests/ui/finder_fails_if_local_implementor_used_without_local_keyword.rs:20:1
+   |
+20 | #[finder(ItemToTrait<'a>, ItemToTrait<'a>, LocalImplementor<T: std::fmt::Debug + Clone>)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ToFind<'_, LocalImplementor<T>, _>` is not implemented for `Finder<'_, EmptyFinder, 1>`
+   |
+   = help: the following other types implement trait `ToFind<'a, T, N>`:
+             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToFile, 1>`
+             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToImpl<'_>, 1>`
+             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToMod<'_>, 1>`
+             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, ItemToTrait<'_>, 1>`
+             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, NewImplementor<'_, T>, 3>`
+             `Finder<'_, EmptyFinder, 1>` implements `ToFind<'_, TokenStreamToMacro, 1>`
+   = note: this error originates in the attribute macro `finder` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error[E0599]: the method `find` exists for struct `Finder<'_, LocalImplementor<T>, _>`, but its trait bounds were not satisfied
+  --> tests/ui/finder_fails_if_local_implementor_used_without_local_keyword.rs:20:1
+   |
+20 | #[finder(ItemToTrait<'a>, ItemToTrait<'a>, LocalImplementor<T: std::fmt::Debug + Clone>)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method cannot be called on `Finder<'_, LocalImplementor<T>, _>` due to unsatisfied trait bounds
+   |
+  ::: $WORKSPACE/rust_writer/src/ast/finder.rs
+   |
+   | pub struct Finder<'a, T: Debug, const N: usize> {
+   | ----------------------------------------------- doesn't satisfy `Finder<'_, LocalImplementor<T>, _>: Visit<'_>`
+   |
+   = note: the following trait bounds were not satisfied:
+           `Finder<'_, LocalImplementor<T>, _>: Visit<'_>`
+   = note: this error originates in the attribute macro `finder` (in Nightly builds, run with -Z macro-backtrace for more info)
