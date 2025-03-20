@@ -31,9 +31,8 @@ impl MacroFinderMutatorParsed {
 		let (already_expanded, impl_from) = attrs.validate_struct(&mut struct_)?.parse();
 
 		let ResolvedImplementors {
-			new_implementors_idents: new_crate_implementors_idents,
 			implementors_idents: crate_implementors_idents,
-			new_implementors: new_crate_implementors,
+			implementors_types_paths: crate_implementors_types_paths,
 		} = helpers::resolve_implementors_for_struct(
 			attrs.0.iter().filter_map(|macro_attr| match macro_attr {
 				MacroAttr::CrateImplementor(path) => Some(path),
@@ -43,9 +42,8 @@ impl MacroFinderMutatorParsed {
 		);
 
 		let ResolvedImplementors {
-			new_implementors_idents: new_local_implementors_idents,
 			implementors_idents: local_implementors_idents,
-			new_implementors: new_local_implementors,
+			implementors_types_paths: local_implementors_types_paths,
 		} = helpers::resolve_implementors_for_struct(
 			attrs.0.iter().filter_map(|macro_attr| match macro_attr {
 				MacroAttr::LocalImplementor(path) => Some(path),
@@ -73,17 +71,21 @@ impl MacroFinderMutatorParsed {
 
 		let where_clause = where_clause.unwrap_or(parse_quote! {where});
 
-		let mut new_struct_fields: Punctuated<Field, Token![,]> = new_crate_implementors_idents
-			.iter()
-			.zip(new_crate_implementors)
-			.map::<Field, _>(|(name, implementor)| parse_quote!(#struct_vis #name: #implementor))
-			.collect();
+		let mut new_struct_fields = Punctuated::new();
 
-		new_local_implementors_idents.iter().zip(new_local_implementors).for_each(
-			|(name, implementor)| {
-				new_struct_fields.push(parse_quote!(#struct_vis #name: #implementor))
-			},
-		);
+		if !already_expanded {
+			crate_implementors_idents.iter().zip(crate_implementors_types_paths).for_each(
+				|(name, implementor)| {
+					new_struct_fields.push(parse_quote!(#struct_vis #name: #implementor))
+				},
+			);
+
+			local_implementors_idents.iter().zip(local_implementors_types_paths).for_each(
+				|(name, implementor)| {
+					new_struct_fields.push(parse_quote!(#struct_vis #name: #implementor))
+				},
+			);
+		}
 
 		Ok(Self {
 			crate_implementors_idents,

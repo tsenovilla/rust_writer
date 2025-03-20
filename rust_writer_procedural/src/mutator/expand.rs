@@ -33,42 +33,46 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 
 	let mutator_lifetime: Lifetime = parse_quote! {'mutator};
 
-	// Expand struct fields and return a reference to the inner fields
-	let struct_fields: &Punctuated<Field, Token![,]> = match struct_.fields {
-		Fields::Unit => {
-			struct_.fields = Fields::Named(FieldsNamed {
-				brace_token: Brace::default(),
-				named: new_struct_fields.clone(),
-			});
-			&new_struct_fields
-		},
-		Fields::Named(ref mut fields) => {
-			fields.named.extend(new_struct_fields);
-			&fields.named
-		},
-		_ => unreachable!("Parser doesn't allow Unnamed fields; qed;"),
-	};
-
 	let mut impl_from_block = quote! {};
 
-	if impl_from {
-		let fields_names: Vec<&Ident> = struct_fields
-			.iter()
-			.map(|field| field.ident.as_ref().expect("Named field has ident; qed;"))
-			.collect();
-
-		let fields_types: Punctuated<&Type, Token![,]> =
-			struct_fields.iter().map(|field| &field.ty).collect();
-		let tuple_indexes: Vec<Index> =
-			struct_fields.iter().enumerate().map(|(index, _)| Index::from(index)).collect();
-
-		impl_from_block = quote! {
-			impl<#generics_declarations> From<(#fields_types)> for #struct_name<#generics_idents> #where_clause{
-				fn from(tuple: (#fields_types)) -> Self{
-					Self{ #(#fields_names: tuple.#tuple_indexes),* }
-				}
-			}
+	if !already_expanded {
+		struct_.attrs.push(parse_quote!(#[rust_writer::ast::already_expanded]));
+		struct_.attrs.push(parse_quote!(#[derive(Debug, Clone)]));
+		// Expand struct fields and return a reference to the inner fields
+		let struct_fields: &Punctuated<Field, Token![,]> = match struct_.fields {
+			Fields::Unit => {
+				struct_.fields = Fields::Named(FieldsNamed {
+					brace_token: Brace::default(),
+					named: new_struct_fields.clone(),
+				});
+				&new_struct_fields
+			},
+			Fields::Named(ref mut fields) => {
+				fields.named.extend(new_struct_fields);
+				&fields.named
+			},
+			_ => unreachable!("Parser doesn't allow Unnamed fields; qed;"),
 		};
+
+		if impl_from {
+			let fields_names: Vec<&Ident> = struct_fields
+				.iter()
+				.map(|field| field.ident.as_ref().expect("Named field has ident; qed;"))
+				.collect();
+
+			let fields_types: Punctuated<&Type, Token![,]> =
+				struct_fields.iter().map(|field| &field.ty).collect();
+			let tuple_indexes: Vec<Index> =
+				struct_fields.iter().enumerate().map(|(index, _)| Index::from(index)).collect();
+
+			impl_from_block = quote! {
+				impl<#generics_declarations> From<(#fields_types)> for #struct_name<#generics_idents> #where_clause{
+					fn from(tuple: (#fields_types)) -> Self{
+						Self{ #(#fields_names: tuple.#tuple_indexes),* }
+					}
+				}
+			};
+		}
 	}
 
 	let mutator_wrapper = quote! {
@@ -167,11 +171,6 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 			}
 		}
 	};
-
-	if !already_expanded {
-		struct_.attrs.push(parse_quote!(#[rust_writer::ast::already_expanded]));
-		struct_.attrs.push(parse_quote!(#[derive(Debug, Clone)]));
-	}
 
 	quote! {
 		#struct_

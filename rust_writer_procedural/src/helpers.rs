@@ -2,8 +2,8 @@
 
 use proc_macro2::Span;
 use syn::{
-	parse_quote, punctuated::Punctuated, Fields, GenericArgument, GenericParam, Ident, ItemStruct,
-	Path, PathArguments, Token,
+	parse_quote, punctuated::Punctuated, GenericArgument, GenericParam, Ident, ItemStruct, Path,
+	PathArguments, Token,
 };
 
 pub(crate) fn remove_impl_from_attr(struct_: &mut ItemStruct) {
@@ -16,9 +16,8 @@ pub(crate) fn remove_impl_from_attr(struct_: &mut ItemStruct) {
 }
 
 pub(crate) struct ResolvedImplementors {
-	pub(crate) new_implementors_idents: Vec<Ident>,
-	pub(crate) new_implementors: Vec<Path>,
 	pub(crate) implementors_idents: Vec<Ident>,
+	pub(crate) implementors_types_paths: Vec<Path>,
 }
 
 const UNREACHABLE_MESSAGE: &str =
@@ -31,9 +30,8 @@ pub(crate) fn resolve_implementors_for_struct<'a, T>(
 where
 	T: Iterator<Item = &'a Path>,
 {
-	let mut new_implementors_idents = Vec::new();
-	let mut new_implementors = Vec::new();
 	let mut implementors_idents: Vec<Ident> = Vec::new();
+	let mut implementors_types_paths = Vec::new();
 
 	for implementor in iter {
 		let mut implementor = implementor.clone();
@@ -93,22 +91,9 @@ where
 			generics.args = last_implementor_generics_idents;
 		}
 
-		match struct_.fields {
-			Fields::Named(ref fields)
-				if fields.named.iter().any(|field| {
-					field.ident.as_ref().expect("Named fields have idents; qed;") == &ident
-				}) =>
-			{
-				implementors_idents.push(ident);
-				continue
-			},
-			_ => {
-				new_implementors_idents.push(ident.clone());
-				new_implementors.push(implementor);
-				implementors_idents.push(ident);
-			},
-		}
+		implementors_idents.push(ident);
+		implementors_types_paths.push(implementor);
 	}
 
-	ResolvedImplementors { new_implementors_idents, new_implementors, implementors_idents }
+	ResolvedImplementors { implementors_idents, implementors_types_paths }
 }
