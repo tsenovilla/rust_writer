@@ -5,7 +5,6 @@ use rust_writer::ast::{
 	implementors::{ItemToImpl, ItemToTrait},
 	mutator::{Mutator, ToMutate},
 };
-
 use rust_writer_procedural::{finder, mutator};
 use syn::{parse_quote, visit_mut::VisitMut, ImplItem, TraitItem};
 use test_builder::TestBuilder;
@@ -13,15 +12,13 @@ use test_builder::TestBuilder;
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
 #[finder(ItemToTrait<'a>, ItemToImpl<'a>)]
 #[impl_from]
-struct SomeStruct<T: Clone + std::fmt::Debug + From<String>> {
-	some_super_useful_field: T,
-}
+struct SomeStruct;
 
 #[test]
-fn modified_struct_with_generics() {
+fn partial_finding_and_mutation() {
 	TestBuilder::default().with_trait_and_impl_block_ast().execute(|mut builder| {
 		let item_to_trait: ItemToTrait =
-			("MyTrait", TraitItem::Type(parse_quote! {type Type3: From<String>;})).into();
+			("MyTrait", TraitItem::Type(parse_quote! {type Type1: From<String>;})).into();
 
 		let item_to_impl: ItemToImpl = (
 			Some("SomeTrait"),
@@ -34,22 +31,25 @@ fn modified_struct_with_generics() {
 		)
 			.into();
 
-		let some_struct: SomeStruct<Vec<u8>> = (vec![1, 2, 3], item_to_trait, item_to_impl).into();
+		let some_struct: SomeStruct = (item_to_trait, item_to_impl).into();
 
 		let ast = builder.get_mut_ast_file("trait_and_impl_block.rs").expect("This should exist");
 
-		let mut finder: SomeStructFinderWrapper<Vec<u8>> =
-			Finder::default().to_find(&some_struct).into();
-		assert!(!finder.find(ast, None));
+		let mut finder: SomeStructFinderWrapper = Finder::default().to_find(&some_struct).into();
 
-		let mut mutator: SomeStructMutatorWrapper<Vec<u8>> =
+		assert!(finder.find(ast, Some(&[0])));
+		assert!(!finder.find(ast, Some(&[1])));
+
+		let mut mutator: SomeStructMutatorWrapper =
 			Mutator::default().to_mutate(&some_struct).into();
-		assert!(mutator.mutate(ast, None).is_ok());
 
-		let mut finder: SomeStructFinderWrapper<Vec<u8>> =
-			Finder::default().to_find(&some_struct).into();
+		assert_eq!(format!("{:?}", ast).matches("Type1").count(), 1);
+
+		assert!(mutator.mutate(ast, finder.get_unfound_indexes().as_deref()).is_ok());
+
+		let mut finder: SomeStructFinderWrapper = Finder::default().to_find(&some_struct).into();
 		assert!(finder.find(ast, None));
-
-		assert_eq!(some_struct.some_super_useful_field, vec![1, 2, 3]);
+		assert!(finder.get_unfound_indexes().is_none());
+		assert_eq!(format!("{:?}", ast).matches("Type1").count(), 1);
 	});
 }

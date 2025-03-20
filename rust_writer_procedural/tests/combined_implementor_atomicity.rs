@@ -6,7 +6,7 @@ use rust_writer::ast::{
 	mutator::{Mutator, ToMutate},
 };
 use rust_writer_procedural::{finder, mutator};
-use syn::{parse_quote, visit::Visit, visit_mut::VisitMut, ImplItem, TraitItem};
+use syn::{parse_quote, visit_mut::VisitMut, ImplItem, TraitItem};
 use test_builder::TestBuilder;
 
 #[mutator(ItemToTrait<'a>, ItemToImpl<'a>)]
@@ -36,7 +36,7 @@ fn finder_fails_if_a_single_implementor_fails_to_find() {
 		let ast = builder.get_ref_ast_file("trait_and_impl_block.rs").expect("This should exist");
 
 		let mut finder: SomeStructFinderWrapper = Finder::default().to_find(&some_struct).into();
-		assert!(!finder.find(ast));
+		assert!(!finder.find(ast, None));
 	});
 }
 
@@ -63,6 +63,6 @@ fn mutator_fails_if_a_single_implementor_fails_to_mutate() {
 
 		let mut mutator: SomeStructMutatorWrapper =
 			Mutator::default().to_mutate(&some_struct).into();
-		assert!(mutator.mutate(ast).is_err());
+		assert!(mutator.mutate(ast, None).is_err());
 	});
 }

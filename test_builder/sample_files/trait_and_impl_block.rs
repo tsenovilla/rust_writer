@@ -10,7 +10,7 @@ trait MyTrait{
 }
 
 impl SomeTrait for SomeImplementor{
-    type Type1 = u8;
+    type Type = u8;
 
     fn some_func(&self) -> bool{
         true

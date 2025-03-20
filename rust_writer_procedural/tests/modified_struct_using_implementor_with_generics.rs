@@ -60,7 +60,7 @@ fn modified_struct_using_local_implementor_with_generics() {
 			.into();
 
 		let toy_finder_implementor =
-			ToyImplementor { found: [false; 7], mutated: [true; 7], something: 0u8 };
+			ToyImplementor { found: [false; 7], mutated: [false; 7], something: 0u8 };
 
 		let some_struct: SomeStruct<7, u8> =
 			([0; 7], item_to_impl, item_to_trait, toy_finder_implementor).into();
@@ -69,14 +69,14 @@ fn modified_struct_using_local_implementor_with_generics() {
 
 		let mut finder: SomeStructFinderWrapper<7, u8> =
 			Finder::default().to_find(&some_struct).into();
-		assert!(!finder.find(ast));
+		assert!(!finder.find(ast, None));
 
 		let mut mutator: SomeStructMutatorWrapper<7, u8> =
 			Mutator::default().to_mutate(&some_struct).into();
-		assert!(mutator.mutate(ast).is_ok());
+		assert!(mutator.mutate(ast, None).is_ok());
 
 		let mut finder: SomeStructFinderWrapper<7, u8> =
 			Finder::default().to_find(&some_struct).into();
-		assert!(finder.find(ast));
+		assert!(finder.find(ast, None));
 	});
 }

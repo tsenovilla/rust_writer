@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
+#[cfg(test)]
+mod tests;
+
 use std::fmt::Debug;
 use syn::{visit::Visit, File};
 
@@ -30,5 +33,14 @@ where
 	pub fn find(&mut self, ast: &'a File) -> bool {
 		self.visit_file(ast);
 		self.found.iter().all(|&x| x)
+	}
+}
+
+impl<'a, T, const N: usize> Finder<'a, T, N>
+where
+	T: Debug,
+{
+	pub fn reset(&mut self) {
+		self.found = [false; N];
 	}
 }

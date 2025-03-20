@@ -75,7 +75,7 @@ fn preserver_and_ast_modifier_integration() {
 
 			let mut mutator: TestMutatorMutatorWrapper =
 				Mutator::default().to_mutate(&test_mutator).into();
-			assert!(mutator.mutate(&mut ast).is_ok());
+			assert!(mutator.mutate(&mut ast, None).is_ok());
 
 			assert!(rust_writer::preserver::resolve_preserved(&ast, complete_file_path).is_ok());
 

@@ -2,7 +2,6 @@
 
 use rust_writer::ast::finder::ToFind;
 use rust_writer_procedural::finder;
-use syn::visit::Visit;
 
 // A custom mutator emulating ItemToTrait
 #[derive(Debug, Clone)]

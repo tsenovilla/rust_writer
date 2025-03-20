@@ -1,7 +1,7 @@
 error[E0277]: the trait bound `Finder<'_, EmptyFinder, 1>: ToFind<'_, EmptyMutator, _>` is not satisfied
- --> tests/ui/finder_fails_if_crate_implementor_doesnt_implement_to_find.rs:8:1
+ --> tests/ui/finder_fails_if_crate_implementor_doesnt_implement_to_find.rs:7:1
   |
-8 | #[finder(ItemToImpl<'a>, EmptyMutator)]
+7 | #[finder(ItemToImpl<'a>, EmptyMutator)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the trait `ToFind<'_, EmptyMutator, _>` is not implemented for `Finder<'_, EmptyFinder, 1>`
   |
   = help: the following other types implement trait `ToFind<'a, T, N>`:
@@ -14,9 +14,9 @@ error[E0277]: the trait bound `Finder<'_, EmptyFinder, 1>: ToFind<'_, EmptyMutat
   = note: this error originates in the attribute macro `finder` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error[E0599]: the method `find` exists for struct `Finder<'_, EmptyMutator, _>`, but its trait bounds were not satisfied
- --> tests/ui/finder_fails_if_crate_implementor_doesnt_implement_to_find.rs:8:1
+ --> tests/ui/finder_fails_if_crate_implementor_doesnt_implement_to_find.rs:7:1
   |
-8 | #[finder(ItemToImpl<'a>, EmptyMutator)]
+7 | #[finder(ItemToImpl<'a>, EmptyMutator)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method cannot be called on `Finder<'_, EmptyMutator, _>` due to unsatisfied trait bounds
   |
  ::: $WORKSPACE/rust_writer/src/ast/finder.rs
@@ -24,14 +24,6 @@ error[E0599]: the method `find` exists for struct `Finder<'_, EmptyMutator, _>`,
   | pub struct Finder<'a, T: Debug, const N: usize> {
   | ----------------------------------------------- doesn't satisfy `Finder<'_, EmptyMutator, _>: Visit<'_>`
   |
-note: there's an earlier shadowed binding `finder` of type `Finder<'_, ItemToImpl<'_>, 1>` that has method `find` available
- --> tests/ui/finder_fails_if_crate_implementor_doesnt_implement_to_find.rs:8:1
-  |
-8 | #[finder(ItemToImpl<'a>, EmptyMutator)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  | |
-  | `finder` of type `Finder<'_, ItemToImpl<'_>, 1>` that has method `find` defined earlier here
-  | earlier `finder` shadowed here with type `Finder<'_, EmptyMutator, _>`
   = note: the following trait bounds were not satisfied:
           `Finder<'_, EmptyMutator, _>: Visit<'_>`
   = note: this error originates in the attribute macro `finder` (in Nightly builds, run with -Z macro-backtrace for more info)

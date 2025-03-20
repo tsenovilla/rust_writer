@@ -1,16 +1,43 @@
-error[E0599]: no method named `visit_file_mut` found for mutable reference `&mut SomeStructMutatorWrapper<'mutator, 'a>` in the current scope
+error[E0599]: no method named `visit_file_mut` found for struct `Mutator` in the current scope
  --> tests/ui/mutator_fails_if_visit_mut_not_in_scope.rs:6:1
   |
 6 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
+ ::: $CARGO/syn-2.0.98/src/gen/visit_mut.rs
+  |
+  |     fn visit_file_mut(&mut self, i: &mut crate::File) {
+  |        -------------- the method is available for `Mutator<'_, ItemToTrait<'_>, 1>` here
+  |
   = help: items from traits can only be used if the trait is in scope
   = note: this error originates in the attribute macro `mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
 help: trait `VisitMut` which provides `visit_file_mut` is implemented but not in scope; perhaps you want to import it
   |
-3 + use syn::visit_mut::VisitMut;
-  |
+3   + use syn::visit_mut::VisitMut;
+    |
 help: there is a method `visit_field_value_mut` with a similar name
+    |
+6   | visit_field_value_mut
+    |
+
+error[E0599]: no method named `visit_file_mut` found for struct `Mutator` in the current scope
+ --> tests/ui/mutator_fails_if_visit_mut_not_in_scope.rs:6:1
   |
-6 | visit_field_value_mut
+6 | #[mutator(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
+ ::: $CARGO/syn-2.0.98/src/gen/visit_mut.rs
+  |
+  |     fn visit_file_mut(&mut self, i: &mut crate::File) {
+  |        -------------- the method is available for `Mutator<'_, ItemToImpl<'_>, 1>` here
+  |
+  = help: items from traits can only be used if the trait is in scope
+  = note: this error originates in the attribute macro `mutator` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: trait `VisitMut` which provides `visit_file_mut` is implemented but not in scope; perhaps you want to import it
+  |
+3   + use syn::visit_mut::VisitMut;
+    |
+help: there is a method `visit_field_value_mut` with a similar name
+    |
+6   | visit_field_value_mut
+    |

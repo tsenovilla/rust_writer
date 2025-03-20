@@ -1,10 +1,10 @@
 error[E0599]: no method named `find` found for struct `SomeImplementor` in the current scope
-  --> tests/ui/finder_fails_if_local_implementor_not_find_method.rs:13:1
+  --> tests/ui/finder_fails_if_local_implementor_not_find_method.rs:12:1
    |
-9  | struct SomeImplementor {
+8  | struct SomeImplementor {
    | ---------------------- method `find` not found for this struct
 ...
-13 | #[finder(local = SomeImplementor, rust_writer::ast::implementors::ItemToImpl<'a>)]
+12 | #[finder(local = SomeImplementor, rust_writer::ast::implementors::ItemToImpl<'a>)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `SomeImplementor`
    |
    = help: items from traits can only be used if the trait is implemented and in scope

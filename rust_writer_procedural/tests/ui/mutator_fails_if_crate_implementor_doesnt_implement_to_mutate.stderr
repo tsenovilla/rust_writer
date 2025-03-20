@@ -19,12 +19,4 @@ error[E0599]: no method named `visit_file_mut` found for struct `Mutator` in the
 10 | #[mutator(ItemToImpl<'a>, EmptyMutator)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `Mutator<'_, EmptyMutator, _>`
    |
-note: there's an earlier shadowed binding `mutator` of type `Mutator<'_, ItemToImpl<'_>, 1>` that has method `visit_file_mut` available
-  --> tests/ui/mutator_fails_if_crate_implementor_doesnt_implement_to_mutate.rs:10:1
-   |
-10 | #[mutator(ItemToImpl<'a>, EmptyMutator)]
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   | |
-   | `mutator` of type `Mutator<'_, ItemToImpl<'_>, 1>` that has method `visit_file_mut` defined earlier here
-   | earlier `mutator` shadowed here with type `Mutator`
    = note: this error originates in the attribute macro `mutator` (in Nightly builds, run with -Z macro-backtrace for more info)

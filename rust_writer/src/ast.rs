@@ -131,7 +131,7 @@
 //!   let mut finder: CombinedImplementorFinderWrapper = Finder::default().to_find(&combined_implementor).into();
 //!
 //!   // The `Finder` fails to find all the elements.
-//!   assert!(!finder.find(&ast));
+//!   assert!(!finder.find(&ast, None));
 //!
 //!   // But we can still check that the item_to_trait implementor succeeded in its research,
 //!   // thanks to the finder struct!
@@ -143,12 +143,12 @@
 //!   // Let's mutate and complete the ast
 //!   let mut mutator: CombinedImplementorMutatorWrapper = Mutator::default().to_mutate(&combined_implementor).into();
 //!
-//!   assert!(mutator.mutate(&mut ast).is_ok());
+//!   assert!(mutator.mutate(&mut ast, None).is_ok());
 //!
 //!   let mut finder: CombinedImplementorFinderWrapper = Finder::default().to_find(&combined_implementor).into();
 //!
 //!   // Now the finder can find both elements
-//!   assert!(finder.find(&ast));
+//!   assert!(finder.find(&ast, None));
 //!
 //!   // But attention, cause the `Type1` has been duplicated
 //!   assert_eq!(format!("{:?}", ast).matches("Type1").count(), 2);

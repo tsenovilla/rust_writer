@@ -1,7 +1,7 @@
 error[E0599]: no method named `to_find` found for struct `Finder` in the current scope
- --> tests/ui/finder_fails_if_to_find_not_in_scope.rs:6:1
+ --> tests/ui/finder_fails_if_to_find_not_in_scope.rs:5:1
   |
-6 | #[finder(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
+5 | #[finder(rust_writer::ast::implementors::ItemToTrait<'a>, rust_writer::ast::implementors::ItemToImpl<'a>)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `Finder<'_, EmptyFinder, 1>`
   |
  ::: $WORKSPACE/rust_writer/src/ast/finder.rs

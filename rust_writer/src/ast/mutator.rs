@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
+#[cfg(test)]
+mod tests;
+
 use crate::Error;
 use std::fmt::Debug;
 use syn::{visit_mut::VisitMut, File};
@@ -36,5 +39,14 @@ where
 		} else {
 			Err(Error::Descriptive(format!("Cannot mutate using Mutator: {:?}", self.mutator)))
 		}
+	}
+}
+
+impl<'a, T, const N: usize> Mutator<'a, T, N>
+where
+	T: Debug + Clone,
+{
+	pub fn reset(&mut self) {
+		self.mutated = [false; N];
 	}
 }

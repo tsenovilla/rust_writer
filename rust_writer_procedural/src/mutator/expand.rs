@@ -111,43 +111,59 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 		}
 	};
 
-	let impl_visit_mut = quote! {
-		impl<#mutator_lifetime, #generics_declarations>
-		syn::visit_mut::VisitMut
-		for #mutator_wrapper_name<#mutator_lifetime, #generics_idents>
-		#where_clause
-		{
-			fn visit_file_mut(&mut self, file: &mut syn::File){
-				#(
-					let mut mutator = rust_writer::ast::mutator::Mutator::default()
-						.to_mutate(&self.0.mutator.#crate_implementors_idents);
-					mutator.visit_file_mut(file);
-					self.0.mutated[#crate_implementors_indexes] = mutator.mutated.iter().all(|&x| x);
-				)*
-
-				#(
-					self.0.mutator.#local_implementors_idents.clone().visit_file_mut(file);
-					self.0.mutated[#local_implementors_indexes] = self.0.mutator
-						.#local_implementors_idents.mutated.iter().all(|&x| x);
-				)*
-			}
-		}
-	};
-
 	let impl_mutate = quote! {
 		impl<#mutator_lifetime, #generics_declarations>
 		#mutator_wrapper_name<#mutator_lifetime, #generics_idents>
 		#where_clause
 		{
-			fn mutate(&mut self, file: &mut syn::File) -> Result<(), rust_writer::Error>{
-				self.visit_file_mut(file);
+			fn mutate(
+				&mut self,
+				file: &mut syn::File,
+				indexes: Option<&[u32]>,
+			) -> Result<(), rust_writer::Error> {
+				#(
+					match indexes {
+						Some(indexes) if !indexes.contains(&#crate_implementors_indexes) => (),
+						_ => {
+							let mut mutator = rust_writer::ast::mutator::Mutator::default()
+								.to_mutate(&self.0.mutator.#crate_implementors_idents);
+							mutator.visit_file_mut(file);
+							self.0.mutated[#crate_implementors_indexes] =
+								mutator.mutated.iter().all(|&x| x);
+						}
+					}
+				)*
 
-				if self.0.mutated.iter().all(|&x| x){
+				#(
+					match indexes {
+						Some(indexes) if !indexes.contains(&#local_implementors_indexes) => (),
+						_ => {
+							let mut mutator = self.0.mutator.clone();
+							mutator.#local_implementors_idents.visit_file_mut(file);
+							self.0.mutated[#local_implementors_indexes] =
+								mutator.#local_implementors_idents.mutated.iter().all(|&x| x);
+						}
+					}
+				)*
+
+				if self
+					.0
+					.mutated
+					.iter()
+					.enumerate()
+					.filter(|(index, _)| match indexes {
+						Some(indexes) if !indexes.contains(&(*index as u32)) => false,
+						_ => true,
+					})
+					.all(|(_, &x)| x)
+				{
 					Ok(())
 				} else {
-					Err(rust_writer::Error::Descriptive(format!("Cannot mutate using Mutator: {:?}", self.0.mutator)))
+					Err(rust_writer::Error::Descriptive(format!(
+						"Cannot mutate using Mutator: {:?}",
+						self.0.mutator
+					)))
 				}
-
 			}
 		}
 	};
@@ -162,7 +178,6 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 		#impl_from_block
 		#mutator_wrapper
 		#impl_to_mutate
-		#impl_visit_mut
 		#impl_mutate
 	}
 }

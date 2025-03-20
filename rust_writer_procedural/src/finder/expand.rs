@@ -111,34 +111,61 @@ pub(crate) fn expand_finder(parsed: MacroFinderMutatorParsed) -> TokenStream {
 		}
 	};
 
-	let impl_visit = quote! {
-		impl<#finder_lifetime, #generics_declarations>
-		syn::visit::Visit<#finder_lifetime>
-		for #finder_wrapper_name<#finder_lifetime, #generics_idents>
-		#where_clause
-		{
-			fn visit_file(&mut self, file: &#finder_lifetime syn::File){
-				#(
-					let mut finder = rust_writer::ast::finder::Finder::default()
-						.to_find(&self.0.finder.#crate_implementors_idents);
-					self.0.found[#crate_implementors_indexes] = finder.find(file);
-				)*
-
-				#(
-					self.0.found[#local_implementors_indexes] = self.0.finder.#local_implementors_idents.clone().find(file);
-				)*
-			}
-		}
-	};
-
-	let impl_find = quote! {
+	let impl_wrapper = quote! {
 		impl<#finder_lifetime, #generics_declarations>
 		#finder_wrapper_name<#finder_lifetime, #generics_idents>
 		#where_clause
 		{
-			fn find(&mut self, file: &#finder_lifetime syn::File) -> bool{
-				self.visit_file(file);
-				self.0.found.iter().all(|&x| x)
+			fn find(&mut self, file: &#finder_lifetime syn::File, indexes: Option<&[u32]>) -> bool {
+				#(
+					match indexes {
+						Some(indexes) if !indexes.contains(&#crate_implementors_indexes) => (),
+						_ => {
+							let mut finder = rust_writer::ast::finder::Finder::default()
+								.to_find(&self.0.finder.#crate_implementors_idents);
+							self.0.found[#crate_implementors_indexes] = finder.find(file);
+						}
+					}
+				)*
+
+				#(
+					match indexes {
+						Some(indexes) if !indexes.contains(&#local_implementors_indexes) => (),
+						_ => {
+							self.0.found[#local_implementors_indexes] =
+								self.0.finder.#local_implementors_idents.clone().find(file);
+						}
+					}
+				)*
+
+				self.0.found
+					.iter()
+					.enumerate()
+					.filter(|(index, _)| match indexes {
+						Some(indexes) if !indexes.contains(&(*index as u32)) => false,
+						_ => true,
+					})
+					.all(|(_, &x)| x)
+			}
+
+			fn get_unfound_indexes(&self) -> Option<Vec<u32>> {
+				let unfound_indexes: Vec<u32> = self.0.found
+					.iter()
+					.enumerate()
+					.filter_map(|(index, found)| {
+						if !found {
+							Some(index as u32)
+						} else {
+							None
+						}
+					})
+					.collect();
+
+				if unfound_indexes.len() > 0 {
+					Some(unfound_indexes)
+				} else {
+					None
+				}
 			}
 		}
 	};
@@ -153,8 +180,7 @@ pub(crate) fn expand_finder(parsed: MacroFinderMutatorParsed) -> TokenStream {
 		#impl_from_block
 		#finder_wrapper
 		#impl_to_find
-		#impl_visit
-		#impl_find
+		#impl_wrapper
 	}
 }
 

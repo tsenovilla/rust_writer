@@ -5,7 +5,7 @@ use rust_writer::ast::{
 	implementors::{ItemToImpl, ItemToTrait},
 };
 use rust_writer_procedural::finder;
-use syn::{parse_quote, visit::Visit, ImplItem, TraitItem};
+use syn::{parse_quote, ImplItem, TraitItem};
 
 #[finder(ItemToTrait<'a>,ItemToImpl<'a>)]
 struct SomeStruct;

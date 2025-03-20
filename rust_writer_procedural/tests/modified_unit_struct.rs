@@ -6,7 +6,7 @@ use rust_writer::ast::{
 	mutator::{Mutator, ToMutate},
 };
 use rust_writer_procedural::{finder, mutator};
-use syn::{parse_quote, visit::Visit, visit_mut::VisitMut, ImplItem};
+use syn::{parse_quote, visit_mut::VisitMut, ImplItem};
 use test_builder::TestBuilder;
 
 #[mutator(ItemToFile, ItemToImpl<'a>)]
@@ -39,13 +39,13 @@ fn modified_unit_struct() {
 		let ast = builder.get_mut_ast_file("trait_and_impl_block.rs").expect("This should exist");
 
 		let mut finder: SomeStructFinderWrapper = Finder::default().to_find(&some_struct).into();
-		assert!(!finder.find(ast));
+		assert!(!finder.find(ast, None));
 
 		let mut mutator: SomeStructMutatorWrapper =
 			Mutator::default().to_mutate(&some_struct).into();
-		assert!(mutator.mutate(ast).is_ok());
+		assert!(mutator.mutate(ast, None).is_ok());
 
 		let mut finder: SomeStructFinderWrapper = Finder::default().to_find(&some_struct).into();
-		assert!(finder.find(ast));
+		assert!(finder.find(ast, None));
 	});
 }
