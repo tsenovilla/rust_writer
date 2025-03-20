@@ -152,8 +152,8 @@ pub(crate) fn expand_finder(parsed: MacroFinderMutatorParsed) -> TokenStream {
 					.all(|(_, &x)| x)
 			}
 
-			fn get_unfound_indexes(&self) -> Option<Vec<u32>> {
-				let unfound_indexes: Vec<u32> = self.0.found
+			fn get_missing_indexes(&self) -> Option<Vec<u32>> {
+				let missing_indexes: Vec<u32> = self.0.found
 					.iter()
 					.enumerate()
 					.filter_map(|(index, found)| {
@@ -165,8 +165,8 @@ pub(crate) fn expand_finder(parsed: MacroFinderMutatorParsed) -> TokenStream {
 					})
 					.collect();
 
-				if unfound_indexes.len() > 0 {
-					Some(unfound_indexes)
+				if missing_indexes.len() > 0 {
+					Some(missing_indexes)
 				} else {
 					None
 				}

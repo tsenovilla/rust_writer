@@ -7,6 +7,11 @@ pub(crate) mod parse;
 
 use proc_macro::TokenStream;
 
+/// # Description
+/// 
+/// The mutator macro is used to define a new implementor which combines a  
+///
+/// # Compatibility with [`#[finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.finder.html) 
 #[proc_macro_attribute]
 pub fn mutator(attrs: TokenStream, item: TokenStream) -> TokenStream {
 	mutator::mutator(attrs, item)

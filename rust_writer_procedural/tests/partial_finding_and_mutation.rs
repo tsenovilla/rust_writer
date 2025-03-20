@@ -45,11 +45,11 @@ fn partial_finding_and_mutation() {
 
 		assert_eq!(format!("{:?}", ast).matches("Type1").count(), 1);
 
-		assert!(mutator.mutate(ast, finder.get_unfound_indexes().as_deref()).is_ok());
+		assert!(mutator.mutate(ast, finder.get_missing_indexes().as_deref()).is_ok());
 
 		let mut finder: SomeStructFinderWrapper = Finder::default().to_find(&some_struct).into();
 		assert!(finder.find(ast, None));
-		assert!(finder.get_unfound_indexes().is_none());
+		assert!(finder.get_missing_indexes().is_none());
 		assert_eq!(format!("{:?}", ast).matches("Type1").count(), 1);
 	});
 }

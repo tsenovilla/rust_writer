@@ -83,8 +83,9 @@
 //! # Combining implementors
 //!
 //! It was so good up to this point, but creating a new `Finder`/`Mutator` for each AST operation
-//! may feel a bit cumbersome in some situations. The [`#[finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.finder.html)
-//! and [`#[mutator]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.mutator.html) macros come in to combine several
+//! may feel a bit cumbersome in some situations. The 
+//! [`#[finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.finder.html) and 
+//! [`#[mutator]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.mutator.html) macros come in to combine several
 //! implementors into a new one capable of executing all operations simultaneously.
 //!
 //! It's recomended to go through their docs to fully understand what those macros are doing and
@@ -134,8 +135,10 @@
 //!   assert!(!finder.find(&ast, None));
 //!
 //!   // But we can still check that the item_to_trait implementor succeeded in its research,
-//!   // thanks to the finder struct!
-//!   assert!(finder.0.found[0]);
+//!   // thanks to the finder struct and the handy `get_missing_indexes` method that tell us which
+//!   // implementors couldn't find its target.
+//!   let missing_indexes = finder.get_missing_indexes();
+//!   assert_eq!(missing_indexes, Some(vec![1]));
 //!
 //!   // And that it was the macro implementor who failed
 //!   assert!(!finder.0.found[1]);
@@ -143,24 +146,15 @@
 //!   // Let's mutate and complete the ast
 //!   let mut mutator: CombinedImplementorMutatorWrapper = Mutator::default().to_mutate(&combined_implementor).into();
 //!
-//!   assert!(mutator.mutate(&mut ast, None).is_ok());
+//!   // We can mutate just the elements that were not found, so we don't duplicate the rest.
+//!   assert!(mutator.mutate(&mut ast, missing_indexes.as_deref()).is_ok());
 //!
 //!   let mut finder: CombinedImplementorFinderWrapper = Finder::default().to_find(&combined_implementor).into();
 //!
 //!   // Now the finder can find both elements
 //!   assert!(finder.find(&ast, None));
-//!
-//!   // But attention, cause the `Type1` has been duplicated
-//!   assert_eq!(format!("{:?}", ast).matches("Type1").count(), 2);
 //! });
 //! ```
-//!
-//! This example also shows that combining implementors should be carefully done.
-//! While using a combined implementor to assert that all the expected elements belongs to
-//! the AST is always harmless, mutating with a combined implementor may lead to element
-//! duplication, potentially to invalid Rust code. Check the `#[mutator]` macro documentation to
-//! learn a nice workaround for this kind of situation 🥳.
-//!
 //! # Defining new implementors
 //!
 //! If the set of predefined implementors isn't enough, defining a new implementor is perfectly
@@ -171,7 +165,7 @@
 //! the orphan rule, so, what to do in this case? 🤔🤔🤔
 //!
 //! There's basically two approaches:
-//! 1. If the implementor to define isn't quite linked to the project where it's needed, open a PR
+//! 1. If the implementor to define isn't quite linked to the project where it's needed, open a **PR**
 //!    to the rust_writer crate! That way everybody will benefit of the new implementor.
 //! 1. Use the [`#[impl_finder]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.impl_finder.html)
 //!    and [`#[impl_mutator]`](https://docs.rs/rust_writer/latest/rust_writer/ast/attr.impl_mutator.html)
