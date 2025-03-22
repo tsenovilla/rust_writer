@@ -35,7 +35,7 @@ impl<T: std::fmt::Debug + Clone, const N: usize> VisitMut for ToyImplementor<T, 
 }
 
 #[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T,N>)]
-#[mutator(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T,N>)]
+#[mutator(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T: std::fmt::Debug + Clone,N>)]
 #[impl_from]
 struct SomeStruct<T: std::fmt::Debug + Clone, const N: usize> {
 	#[allow(dead_code)]
