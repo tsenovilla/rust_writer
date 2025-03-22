@@ -9,6 +9,7 @@ use crate::ast::{
 };
 use syn::{visit::Visit, visit_mut::VisitMut, File, Item};
 
+/// This implementor targets any item inside a complete AST.
 #[derive(Debug, Clone)]
 pub struct ItemToFile {
 	pub item: Item,

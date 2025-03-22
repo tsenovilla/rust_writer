@@ -9,10 +9,15 @@ use crate::ast::{
 };
 use syn::{visit::Visit, visit_mut::VisitMut, ImplItem, ItemImpl, PathSegment};
 
+/// This implementor targets an element inside an `impl block`
 #[derive(Debug, Clone)]
 pub struct ItemToImpl<'a> {
+	/// The trait's name lookup. If specified, the implementor will look inside `impl` blocks
+	/// implementing this trait.  
 	pub trait_name: Option<&'a str>,
+	/// The type being implemented by the `impl` block.
 	pub implementor_name: &'a str,
+	/// The target item.
 	pub impl_item: ImplItem,
 }
 

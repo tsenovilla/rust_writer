@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 
-//! # Description
-//!
 //! This module leverages the [syn](https://docs.rs/syn/latest/syn/index.html) crate and provides an easy mechanism
 //! to interact with a rust AST represented as a [`syn::File`](https://docs.rs/syn/latest/syn/struct.File.html) with
 //! just a few lines of code.

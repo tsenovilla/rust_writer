@@ -9,9 +9,12 @@ use crate::ast::{
 };
 use syn::{visit::Visit, visit_mut::VisitMut, Item, ItemMod};
 
+/// This implementor targets any item inside a module.
 #[derive(Debug, Clone)]
 pub struct ItemToMod<'a> {
+	/// The module's name.
 	pub mod_name: &'a str,
+	/// The target item.
 	pub item: Item,
 }
 

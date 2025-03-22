@@ -9,9 +9,12 @@ use crate::ast::{
 };
 use syn::{visit::Visit, visit_mut::VisitMut, ItemTrait, TraitItem};
 
+/// This implementor target any item inside a trait definition.
 #[derive(Debug, Clone)]
 pub struct ItemToTrait<'a> {
+	/// The trait's name.
 	pub trait_name: &'a str,
+	/// The target item.
 	pub item_trait: TraitItem,
 }
 

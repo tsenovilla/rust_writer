@@ -10,10 +10,41 @@ use crate::ast::{
 use proc_macro2::{Group, TokenStream, TokenTree};
 use syn::{visit::Visit, visit_mut::VisitMut, Ident, Macro, Path};
 
+/// This implementor targets any [`TokenStream`](https://docs.rs/proc-macro2/latest/proc_macro2/struct.TokenStream.html)
+/// inside a declarative macro.
+///
+/// When used inside a [`Finder`](https://docs.rs/rust_writer/latest/rust_writer/ast/finder/struct.Finder.html)
+/// It works in a "syntactical" way, meaning that it consider the `TokenStream` found if the same
+/// tokens identifiers are contained in the macro in the same order. This means that other parsing
+/// details such as spans or spacing are ignored by this implementor. Have a look at
+/// [this function](https://docs.rs/rustilities/latest/rustilities/parsing/fn.syntactic_token_stream_contains.html)
+/// for further details, as it's used internally.
 #[derive(Debug, Clone)]
 pub struct TokenStreamToMacro {
+	/// The path used to invoke the macro in the AST. Eg, the `println` in `println!("hello")`.
 	pub macro_path: Path,
+	/// If specified, the implementor will look inside a block preceded by this ident.
+	/// Imagine this macro invocation:
+	///
+	/// ```no_compile
+	/// macro_call!{
+	///   let a = 1;
+	///   some super useful group{
+	///     Token1, Token2 ; Token 3
+	///   }
+	/// }
+	/// ```
+	///
+	/// If container_ident is `None`, the implementor will target the whole
+	/// macro invocation. If container_ident is `Some(group)`, it'll only target the inner group.
+	///
+	/// The inner `Ident` **must** be the token just before the group start, so if container_ident
+	/// is `Some(some)`, the implementor will target the whole macro invocation.
+	///
+	/// This currently supports only one level of depth; that is, can only target groups directly
+	/// defined under the macro invocation, but not those under another group.
 	pub container_ident: Option<Ident>,
+	/// The target `TokenStream`.
 	pub token_stream: TokenStream,
 }
 
