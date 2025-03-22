@@ -200,6 +200,15 @@ pub(crate) fn expand_local_mutator(parsed: MacroImplParsed) -> TokenStream {
 					Err(rust_writer::Error::Descriptive(format!("Cannot mutate using Mutator: {:?}", self)))
 				}
 			}
+
+			fn mutator_reset(&mut self) {
+				self.mutated = self.mutated
+					.iter()
+					.map(|_| false)
+					.collect::<Vec<bool>>()
+					.try_into()
+					.expect("The Vec has the correct length by construction; qed;");
+			}
 		}
 	};
 

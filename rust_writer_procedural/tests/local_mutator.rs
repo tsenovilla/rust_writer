@@ -53,6 +53,11 @@ fn local_mutator_struct_mutates() {
 
 		let mut finder = Finder::default().to_find(&item_to_trait);
 		assert!(finder.find(ast));
+
+		// mutator_reset method works
+		assert_eq!(some_struct.mutated, [true]);
+		some_struct.mutator_reset();
+		assert_eq!(some_struct.mutated, [false]);
 	});
 }
 

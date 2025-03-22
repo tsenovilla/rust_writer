@@ -207,9 +207,18 @@ pub(crate) fn expand_local_finder(
 		#struct_name<#generics_idents>
 		#where_clause
 		{
-			fn find(&mut self, file: &#visit_lifetime_ident syn::File) -> bool{
+			fn find(&mut self, file: &#visit_lifetime_ident syn::File) -> bool {
 				self.visit_file(file);
 				self.found.iter().all(|&x| x)
+			}
+
+			fn finder_reset(&mut self) {
+				self.found = self.found
+					.iter()
+					.map(|_| false)
+					.collect::<Vec<bool>>()
+					.try_into()
+					.expect("The Vec has the correct length by construction; qed;");
 			}
 		}
 	};

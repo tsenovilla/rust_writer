@@ -76,7 +76,7 @@ where
 						let generic_ident = &generic.ident;
 						last_implementor_generics_idents.push(parse_quote!(#generic_ident));
 						if !struct_.generics.params.iter().any(|generic| {
-							generic == &generic_param ||
+							matches!(generic, GenericParam::Type(inner) if &inner.ident == generic_ident) ||
                 // Support for generics const combines including their ident as a generic and the
                 // actual const declaration inside the struct def.
 								matches!(generic, GenericParam::Const(inner) if &inner.ident == generic_ident)

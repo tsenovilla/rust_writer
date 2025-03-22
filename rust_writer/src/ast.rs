@@ -41,7 +41,7 @@
 //!   // 1. We're looking inside a trait called `MyTrait`   .
 //!   // 2. We're interested in a type called `Type1` with trait bound `From<String>`.
 //!   let item_to_trait: ItemToTrait =
-//!    ("MyTrait", TraitItem::Type(parse_quote! {type Type1: From<String>;})).into();
+//!    ("MyTrait", parse_quote! {type Type1: From<String>;}).into();
 //!
 //!   let ast = builder.get_ref_ast_file("trait.rs").expect("This exists; qed;");
 //!
@@ -105,7 +105,6 @@
 //!   visit::Visit,
 //!   visit_mut::VisitMut,
 //!   parse_quote,
-//!   TraitItem
 //! };
 //!
 //! #[finder(ItemToTrait<'a>, TokenStreamToMacro)]
@@ -117,13 +116,10 @@
 //!  .with_trait_ast()
 //!  .with_macro_ast()
 //!  .execute(|mut builder|{
-//!   let item_to_trait: ItemToTrait =
-//!    ("MyTrait", TraitItem::Type(parse_quote! { type Type1: From<String>; })).into();
-//!
-//!   let token_to_macro: TokenStreamToMacro =
-//!     (parse_quote! { my_macro }, None, parse_quote! { D }).into();
-//!   
-//!   let combined_implementor: CombinedImplementor = (item_to_trait, token_to_macro).into();
+//!   let combined_implementor: CombinedImplementor = (
+//!     ("MyTrait", parse_quote! { type Type1: From<String>; }).into(),
+//!     (parse_quote! { my_macro }, None, parse_quote! { D }).into()
+//!   ).into();
 //!
 //!   let mut ast = builder.get_mut_ast_file("trait.rs").expect("This exists; qed;").clone();
 //!   ast.items.extend(builder.get_ref_ast_file("macro.rs").expect("This exists;

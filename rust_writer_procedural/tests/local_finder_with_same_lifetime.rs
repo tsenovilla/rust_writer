@@ -36,5 +36,10 @@ fn local_finder_struct_with_same_lifetime() {
 		let ast = builder.get_ref_ast_file("trait.rs").expect("This exists; qed;");
 
 		assert!(some_struct.find(ast));
+
+		// finder_reset method works
+		assert_eq!(some_struct.found, [true]);
+		some_struct.finder_reset();
+		assert_eq!(some_struct.found, [false]);
 	});
 }

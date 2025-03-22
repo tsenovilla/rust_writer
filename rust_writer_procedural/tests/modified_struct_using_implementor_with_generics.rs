@@ -34,12 +34,12 @@ impl<T: std::fmt::Debug + Clone, const N: usize> VisitMut for ToyImplementor<T, 
 	}
 }
 
-#[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T: std::fmt::Debug + Clone, N>)]
-#[mutator(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T: std::fmt::Debug + Clone, N>)]
+#[finder(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T,N>)]
+#[mutator(ItemToImpl<'a>, ItemToTrait<'a>, local = ToyImplementor<T,N>)]
 #[impl_from]
-struct SomeStruct<const N: usize> {
+struct SomeStruct<T: std::fmt::Debug + Clone, const N: usize> {
 	#[allow(dead_code)]
-	some_useful_array: [u8; N],
+	some_useful_array: [T; N],
 }
 
 #[test]
@@ -62,20 +62,20 @@ fn modified_struct_using_local_implementor_with_generics() {
 		let toy_finder_implementor =
 			ToyImplementor { found: [false; 7], mutated: [false; 7], something: 0u8 };
 
-		let some_struct: SomeStruct<7, u8> =
+		let some_struct: SomeStruct<u8, 7> =
 			([0; 7], item_to_impl, item_to_trait, toy_finder_implementor).into();
 
 		let ast = builder.get_mut_ast_file("trait_and_impl_block.rs").expect("This should exist");
 
-		let mut finder: SomeStructFinderWrapper<7, u8> =
+		let mut finder: SomeStructFinderWrapper<u8, 7> =
 			Finder::default().to_find(&some_struct).into();
 		assert!(!finder.find(ast, None));
 
-		let mut mutator: SomeStructMutatorWrapper<7, u8> =
+		let mut mutator: SomeStructMutatorWrapper<u8, 7> =
 			Mutator::default().to_mutate(&some_struct).into();
 		assert!(mutator.mutate(ast, None).is_ok());
 
-		let mut finder: SomeStructFinderWrapper<7, u8> =
+		let mut finder: SomeStructFinderWrapper<u8, 7> =
 			Finder::default().to_find(&some_struct).into();
 		assert!(finder.find(ast, None));
 	});
