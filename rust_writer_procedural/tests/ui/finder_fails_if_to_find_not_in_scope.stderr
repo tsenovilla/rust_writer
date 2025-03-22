@@ -13,5 +13,5 @@ error[E0599]: no method named `to_find` found for struct `Finder` in the current
   = note: this error originates in the attribute macro `finder` (in Nightly builds, run with -Z macro-backtrace for more info)
 help: trait `ToFind` which provides `to_find` is implemented but not in scope; perhaps you want to import it
   |
-3  + use rust_writer::ast::finder::ToFind;
-   |
+3   + use rust_writer::ast::finder::ToFind;
+    |
