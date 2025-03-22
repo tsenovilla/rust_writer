@@ -31,9 +31,9 @@ fn preserver_and_ast_modifier_integration() {
 			let expected_code =
 				std::fs::read_to_string(&expanded_file_path).expect("File should be readable");
 
-			let mut preserver1 = Preserver::new("impl MyTrait for MyStruct");
-			preserver1.add_inners(&["fn trait_method"]);
-			let preserver2 = Preserver::new("fn main");
+			let preserver1 = Preserver::new("impl MyTrait for MyStruct");
+			let mut preserver2 = Preserver::new("fn main");
+			preserver2.add_inners(&["my_macro"]);
 
 			let mut ast = rust_writer::preserver::preserve_and_parse(
 				complete_file_path,
