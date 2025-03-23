@@ -62,7 +62,7 @@ impl<'a> Preserver<'a> {
 
 	/// Gets the lookup for a `Preserver`.
 	pub fn lookup(&self) -> &str {
-		&self.lookup
+		self.lookup
 	}
 
 	/// Gets the outermost inner preserver for a `Preserver`, if any.
