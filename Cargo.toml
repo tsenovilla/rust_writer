@@ -3,12 +3,12 @@ resolver = "2"
 members = ["rust_writer", "rust_writer_proc", "test_builder"]
 
 [workspace.package]
-version = "1.0.1"
+version = "1.0.2"
 repository = "https://github.com/tsenovilla/rust_writer"
 license = "GPL-3.0"
 rust-version = "1.84.0"
 edition = "2021"
-description = "This crate is useful for editing a Rust file from Rust code. The polkadot-sdk feature enables functions to edit common files in projects using the polkadot-sdk"
+description = "This crate is useful for editing a Rust file from Rust code"
 documentation = "https://docs.rs/rust_writer"
 
 [workspace.dependencies]
