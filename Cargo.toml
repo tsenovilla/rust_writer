@@ -3,7 +3,7 @@ resolver = "2"
 members = ["rust_writer", "rust_writer_proc", "test_builder"]
 
 [workspace.package]
-version = "1.0.0"
+version = "1.0.1"
 repository = "https://github.com/tsenovilla/rust_writer"
 license = "GPL-3.0"
 rust-version = "1.84.0"
