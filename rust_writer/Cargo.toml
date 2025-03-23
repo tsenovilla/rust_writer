@@ -12,7 +12,7 @@ documentation.workspace = true
 prettyplease = { workspace = true }
 proc-macro2 = { workspace = true }
 regex = { workspace = true }
-rust_writer_procedural = { workspace = true }
+rust_writer_procedural = "1.0.0"
 rustilities = { workspace = true, features = ["parsing"] }
 syn = { workspace = true, features = ["full", "extra-traits", "visit", "visit-mut"] }
 thiserror = { workspace = true }
@@ -21,7 +21,3 @@ thiserror = { workspace = true }
 tempfile = "3.16.0"
 test_builder = { workspace = true }
 quote = { workspace = true }
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
