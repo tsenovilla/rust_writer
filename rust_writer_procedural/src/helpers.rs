@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 
+#[cfg(test)]
+mod tests;
+
 use proc_macro2::Span;
 use syn::{
 	parse_quote, punctuated::Punctuated, GenericArgument, GenericParam, Ident, ItemStruct, Path,
@@ -18,6 +21,7 @@ pub(crate) fn remove_impl_from_attr(struct_: &mut ItemStruct) {
 pub(crate) struct ResolvedImplementors {
 	pub(crate) implementors_idents: Vec<Ident>,
 	pub(crate) implementors_types_paths: Vec<Path>,
+	pub(crate) implementors_introduced_generics: Vec<GenericParam>,
 }
 
 const UNREACHABLE_MESSAGE: &str =
@@ -25,13 +29,14 @@ const UNREACHABLE_MESSAGE: &str =
 
 pub(crate) fn resolve_implementors_for_struct<'a, T>(
 	iter: T,
-	struct_: &mut ItemStruct,
+	struct_: &ItemStruct,
 ) -> ResolvedImplementors
 where
 	T: Iterator<Item = &'a Path>,
 {
 	let mut implementors_idents: Vec<Ident> = Vec::new();
 	let mut implementors_types_paths = Vec::new();
+	let mut implementors_introduced_generics = Vec::new();
 
 	for implementor in iter {
 		let mut implementor = implementor.clone();
@@ -67,21 +72,27 @@ where
 				match generic_param {
 					GenericParam::Lifetime(_) => {
 						last_implementor_generics_idents.insert(0, parse_quote!(#generic_param));
-						if !struct_.generics.params.iter().any(|generic| generic == &generic_param)
+						if !(struct_
+							.generics
+							.params
+							.iter()
+							.any(|generic| generic == &generic_param) ||
+							implementors_introduced_generics.contains(&generic_param))
 						{
-							struct_.generics.params.insert(0, generic_param);
+							implementors_introduced_generics.push(generic_param);
 						}
 					},
 					GenericParam::Type(ref generic) => {
 						let generic_ident = &generic.ident;
 						last_implementor_generics_idents.push(parse_quote!(#generic_ident));
-						if !struct_.generics.params.iter().any(|generic| {
+						if !(struct_.generics.params.iter().any(|generic| {
 							matches!(generic, GenericParam::Type(inner) if &inner.ident == generic_ident) ||
                 // Support for generics const combines including their ident as a generic and the
                 // actual const declaration inside the struct def.
 								matches!(generic, GenericParam::Const(inner) if &inner.ident == generic_ident)
-						}) {
-							struct_.generics.params.push(generic_param);
+						}) || implementors_introduced_generics.contains(&generic_param))
+						{
+							implementors_introduced_generics.push(generic_param);
 						}
 					},
 					GenericParam::Const(_) => unreachable!("{}", UNREACHABLE_MESSAGE),
@@ -95,5 +106,18 @@ where
 		implementors_types_paths.push(implementor);
 	}
 
-	ResolvedImplementors { implementors_idents, implementors_types_paths }
+	ResolvedImplementors {
+		implementors_idents,
+		implementors_types_paths,
+		implementors_introduced_generics,
+	}
+}
+
+pub(crate) fn add_new_implementors_generics(struct_: &mut ItemStruct, generics: Vec<GenericParam>) {
+	for generic in generics {
+		match generic {
+			GenericParam::Lifetime(_) => struct_.generics.params.insert(0, generic),
+			_ => struct_.generics.params.push(generic),
+		}
+	}
 }

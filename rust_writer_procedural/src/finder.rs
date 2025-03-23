@@ -2,7 +2,7 @@
 
 mod expand;
 
-use crate::parse::{MacroAttrs, MacroFinderMutatorParsed, MacroImplParsed};
+use crate::parse::{MacroAttrs, MacroFinderMutatorParsed, MacroLocalParsed};
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, ItemStruct, LifetimeParam};
 
@@ -22,7 +22,7 @@ pub(crate) fn local_finder(attrs: TokenStream, item: TokenStream) -> TokenStream
 	let visit_lifetime = parse_macro_input!(attrs as LifetimeParam);
 	let struct_def = parse_macro_input!(item as ItemStruct);
 
-	let generated: TokenStream = match MacroImplParsed::try_from(struct_def, "found") {
+	let generated: TokenStream = match MacroLocalParsed::try_from(struct_def, "found") {
 		Ok(parsed) => expand::expand_local_finder(visit_lifetime, parsed).into(),
 		Err(err) => err.to_compile_error().into(),
 	};

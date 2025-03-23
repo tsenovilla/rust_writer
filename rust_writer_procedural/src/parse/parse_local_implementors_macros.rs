@@ -6,14 +6,14 @@ use syn::{
 };
 
 // The content of #[local_finder]/#[local_mutator] macros
-pub(crate) struct MacroImplParsed {
+pub(crate) struct MacroLocalParsed {
 	pub(crate) struct_: ItemStruct,
 	pub(crate) generics_declarations: Punctuated<GenericParam, Token![,]>,
 	pub(crate) generics_idents: Punctuated<GenericParam, Token![,]>,
 	pub(crate) where_clause: WhereClause,
 }
 
-impl MacroImplParsed {
+impl MacroLocalParsed {
 	pub(crate) fn try_from(struct_: ItemStruct, field_ident: &str) -> Result<Self> {
 		match &struct_.fields {
 			Fields::Named(FieldsNamed { named, .. })

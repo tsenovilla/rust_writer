@@ -2,7 +2,7 @@
 
 mod expand;
 
-use crate::parse::{MacroAttrs, MacroFinderMutatorParsed, MacroImplParsed};
+use crate::parse::{MacroAttrs, MacroFinderMutatorParsed, MacroLocalParsed};
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, ItemStruct};
 
@@ -21,7 +21,7 @@ pub(crate) fn local_mutator(item: TokenStream) -> TokenStream {
 
 	let struct_def = parse_macro_input!(item as ItemStruct);
 
-	let generated: TokenStream = match MacroImplParsed::try_from(struct_def, "mutated") {
+	let generated: TokenStream = match MacroLocalParsed::try_from(struct_def, "mutated") {
 		Ok(parsed) => expand::expand_local_mutator(parsed).into(),
 		Err(err) => err.to_compile_error().into(),
 	};

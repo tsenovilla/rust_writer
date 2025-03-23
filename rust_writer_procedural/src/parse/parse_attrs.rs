@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use crate::helpers;
+mod keywords {
+	syn::custom_keyword!(local);
+}
+
+#[cfg(test)]
+mod tests;
+
 use syn::{
 	parse::{Parse, ParseStream},
 	parse_quote,
@@ -8,10 +14,6 @@ use syn::{
 	Error, Fields, FieldsNamed, GenericArgument, ItemStruct, Path, PathArguments, Result, Token,
 	Type, TypePath,
 };
-
-mod keywords {
-	syn::custom_keyword!(local);
-}
 
 // A single attribute in the #[mutator]/#[finder] macros
 pub enum MacroAttr {
@@ -52,7 +54,7 @@ impl Parse for MacroAttrs {
 	}
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum InnerAttr {
 	Nothing,
 	AlreadyExpanded,
@@ -75,7 +77,7 @@ impl InnerAttr {
 const COMBINED_MACROS_MSG: &str = "#[mutator]/#[finder] combination is only possible if the set of implementors in both attributes is the same.";
 
 impl MacroAttrs {
-	pub(crate) fn validate_struct(&self, item_struct: &mut ItemStruct) -> Result<InnerAttr> {
+	pub(crate) fn validate_struct(&self, item_struct: &ItemStruct) -> Result<InnerAttr> {
 		let already_expanded =
 			item_struct.attrs.contains(&parse_quote!(#[rust_writer::ast::already_expanded])) ||
 				item_struct
@@ -91,10 +93,7 @@ impl MacroAttrs {
 				"Cannot use #[already_expanded] attribute in an unit struct",
 			)),
 			(Fields::Unit, _, false) => Ok(InnerAttr::Nothing),
-			(Fields::Unit, _, true) => {
-				helpers::remove_impl_from_attr(item_struct);
-				Ok(InnerAttr::ImplFrom)
-			},
+			(Fields::Unit, _, true) => Ok(InnerAttr::ImplFrom),
 			(Fields::Named(FieldsNamed { named, .. }), true, _) => {
 				// Just a toy path to include in struct_path_values instead of non_path arguments
 				let toy_path: Path =
@@ -154,10 +153,7 @@ impl MacroAttrs {
 				}
 			},
 			(Fields::Named(_), _, false) => Ok(InnerAttr::Nothing),
-			(Fields::Named(_), _, true) => {
-				helpers::remove_impl_from_attr(item_struct);
-				Ok(InnerAttr::ImplFrom)
-			},
+			(Fields::Named(_), _, true) => Ok(InnerAttr::ImplFrom),
 			_ => Err(Error::new(
 				item_struct.ident.span(),
 				"Expected unit struct or named-field struct.",

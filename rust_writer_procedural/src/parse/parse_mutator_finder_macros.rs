@@ -6,7 +6,7 @@ use crate::{
 };
 use syn::{
 	parse_quote, punctuated::Punctuated, Field, GenericParam, Ident, Index, ItemStruct, Result,
-	Token, WhereClause,
+	Token,
 };
 
 // The content of #[finder]/#[mutator] macros parsed
@@ -20,36 +20,36 @@ pub(crate) struct MacroFinderMutatorParsed {
 	pub(crate) implementors_count: Index,
 	pub(crate) crate_implementors_indexes: Vec<Index>,
 	pub(crate) local_implementors_indexes: Vec<Index>,
-	pub(crate) generics_declarations: Punctuated<GenericParam, Token![,]>,
-	pub(crate) generics_idents: Punctuated<GenericParam, Token![,]>,
-	pub(crate) where_clause: WhereClause,
+	pub(crate) implementors_introduced_generics: Vec<GenericParam>,
 	pub(crate) new_struct_fields: Punctuated<Field, Token![,]>,
 }
 
 impl MacroFinderMutatorParsed {
-	pub(crate) fn try_from(attrs: MacroAttrs, mut struct_: ItemStruct) -> Result<Self> {
-		let (already_expanded, impl_from) = attrs.validate_struct(&mut struct_)?.parse();
+	pub(crate) fn try_from(attrs: MacroAttrs, struct_: ItemStruct) -> Result<Self> {
+		let (already_expanded, impl_from) = attrs.validate_struct(&struct_)?.parse();
 
 		let ResolvedImplementors {
 			implementors_idents: crate_implementors_idents,
 			implementors_types_paths: crate_implementors_types_paths,
+			implementors_introduced_generics: crate_implementors_introduced_generics,
 		} = helpers::resolve_implementors_for_struct(
 			attrs.0.iter().filter_map(|macro_attr| match macro_attr {
 				MacroAttr::CrateImplementor(path) => Some(path),
 				_ => None,
 			}),
-			&mut struct_,
+			&struct_,
 		);
 
 		let ResolvedImplementors {
 			implementors_idents: local_implementors_idents,
 			implementors_types_paths: local_implementors_types_paths,
+			implementors_introduced_generics: local_implementors_introduced_generics,
 		} = helpers::resolve_implementors_for_struct(
 			attrs.0.iter().filter_map(|macro_attr| match macro_attr {
 				MacroAttr::LocalImplementor(path) => Some(path),
 				_ => None,
 			}),
-			&mut struct_,
+			&struct_,
 		);
 
 		let one = Index::from(1);
@@ -66,10 +66,8 @@ impl MacroFinderMutatorParsed {
 			.map(Index::from)
 			.collect();
 
-		let (generics_declarations, generics_idents, where_clause) =
-			rustilities::parsing::extract_generics(&struct_.generics);
-
-		let where_clause = where_clause.unwrap_or(parse_quote! {where});
+		let mut implementors_introduced_generics = crate_implementors_introduced_generics;
+		implementors_introduced_generics.extend(local_implementors_introduced_generics);
 
 		let mut new_struct_fields = Punctuated::new();
 
@@ -97,9 +95,7 @@ impl MacroFinderMutatorParsed {
 			implementors_count,
 			crate_implementors_indexes,
 			local_implementors_indexes,
-			generics_declarations,
-			generics_idents,
-			where_clause,
+			implementors_introduced_generics,
 			new_struct_fields,
 		})
 	}

@@ -38,21 +38,21 @@ mod tests;
 /// preserver.add_inners(&["fn inner_function", "fn super_inner_function"]);
 /// ```
 #[derive(Debug, Clone, PartialEq)]
-pub struct Preserver {
-	lookup: String,
-	inner: Option<Box<Preserver>>,
+pub struct Preserver<'a> {
+	lookup: &'a str,
+	inner: Option<Box<Preserver<'a>>>,
 }
 
-impl Preserver {
+impl<'a> Preserver<'a> {
 	/// Creates a new preserver using the provided lookup.  
-	pub fn new(lookup: &str) -> Self {
-		Self { lookup: lookup.to_owned(), inner: None }
+	pub fn new(lookup: &'a str) -> Self {
+		Self { lookup, inner: None }
 	}
 
 	/// Add inner preservers, in order to preserve just an inner block of a preserved block, keeping
 	/// the outer block itself preserved. Inner preserver will be composed sequentially as they are
 	/// defined in the input slice.
-	pub fn add_inners(&mut self, lookups: &[&str]) {
+	pub fn add_inners(&mut self, lookups: &[&'a str]) {
 		let mut current = self;
 		for lookup in lookups {
 			current.inner = Some(Box::new(Self::new(lookup)));

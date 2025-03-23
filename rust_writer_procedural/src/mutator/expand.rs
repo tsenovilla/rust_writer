@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 
-use crate::parse::{MacroFinderMutatorParsed, MacroImplParsed};
+use crate::{
+	helpers,
+	parse::{MacroFinderMutatorParsed, MacroLocalParsed},
+};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
@@ -19,19 +22,21 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 		implementors_count,
 		crate_implementors_indexes,
 		local_implementors_indexes,
-		generics_declarations,
-		generics_idents,
-		where_clause,
+		implementors_introduced_generics,
 		new_struct_fields,
 	} = parsed;
-
-	let struct_vis = &struct_.vis;
-	let struct_name = &struct_.ident;
 
 	let mutator_wrapper_name =
 		Ident::new(&(struct_.ident.to_string() + "MutatorWrapper"), Span::call_site());
 
 	let mutator_lifetime: Lifetime = parse_quote! {'mutator};
+
+	helpers::add_new_implementors_generics(&mut struct_, implementors_introduced_generics);
+
+	let (generics_declarations, generics_idents, where_clause) =
+		rustilities::parsing::extract_generics(&struct_.generics);
+
+	let where_clause = where_clause.unwrap_or(parse_quote! {where});
 
 	let mut impl_from_block = quote! {};
 
@@ -65,6 +70,8 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 			let tuple_indexes: Vec<Index> =
 				struct_fields.iter().enumerate().map(|(index, _)| Index::from(index)).collect();
 
+			let struct_name = struct_.ident.clone();
+
 			impl_from_block = quote! {
 				impl<#generics_declarations> From<(#fields_types)> for #struct_name<#generics_idents> #where_clause{
 					fn from(tuple: (#fields_types)) -> Self{
@@ -72,8 +79,12 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 					}
 				}
 			};
+			helpers::remove_impl_from_attr(&mut struct_);
 		}
 	}
+
+	let struct_vis = &struct_.vis;
+	let struct_name = &struct_.ident;
 
 	let mutator_wrapper = quote! {
 		#[derive(Debug, Clone)]
@@ -181,8 +192,8 @@ pub(crate) fn expand_mutator(parsed: MacroFinderMutatorParsed) -> TokenStream {
 	}
 }
 
-pub(crate) fn expand_local_mutator(parsed: MacroImplParsed) -> TokenStream {
-	let MacroImplParsed { struct_, generics_idents, where_clause, generics_declarations } = parsed;
+pub(crate) fn expand_local_mutator(parsed: MacroLocalParsed) -> TokenStream {
+	let MacroLocalParsed { struct_, generics_idents, where_clause, generics_declarations } = parsed;
 
 	let struct_name = &struct_.ident;
 
