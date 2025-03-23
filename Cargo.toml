@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rust_writer", "rust_writer_procedural", "test_builder"]
+members = ["rust_writer", "rust_writer_proc", "test_builder"]
 
 [workspace.package]
 version = "1.0.0"
@@ -23,4 +23,4 @@ rust_writer = { path = "./rust_writer/" }
 test_builder = { path = "./test_builder/" }
 
 [patch.crates-io]
-rust_writer_procedural = { path = "./rust_writer_procedural" }
+rust_writer_proc = { path = "./rust_writer_proc" }

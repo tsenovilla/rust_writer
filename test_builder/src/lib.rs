@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 
 //! A module providing a suitable test environment builder to test the rust_writer and
-//! rust_writer_procedural crates
+//! rust_writer_proc crates
 
 use std::{collections::HashMap, fs::Permissions, os::unix::fs::PermissionsExt, path::Path};
 use syn::File as syn_File;

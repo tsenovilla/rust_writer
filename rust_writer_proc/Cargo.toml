@@ -1,5 +1,5 @@
 [package]
-name = "rust_writer"
+name = "rust_writer_proc"
 version.workspace = true
 repository.workspace = true 
 license.workspace = true
@@ -9,15 +9,16 @@ description.workspace = true
 documentation.workspace = true
 
 [dependencies]
-prettyplease = { workspace = true }
 proc-macro2 = { workspace = true }
-regex = { workspace = true }
-rust_writer_proc = "1.0.0"
+quote = { workspace = true }
 rustilities = { workspace = true, features = ["parsing"] }
-syn = { workspace = true, features = ["full", "extra-traits", "visit", "visit-mut"] }
-thiserror = { workspace = true }
+syn = { workspace = true, features = ["full", "extra-traits", "parsing"] }
+
+[lib]
+proc-macro = true
 
 [dev-dependencies]
-tempfile = "3.16.0"
+trybuild = "=1.0.96"
+rust_writer = { workspace = true }
 test_builder = { workspace = true }
-quote = { workspace = true }
+
