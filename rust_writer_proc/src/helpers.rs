@@ -34,8 +34,8 @@ pub(crate) fn resolve_implementors_for_struct<'a, T>(
 where
 	T: Iterator<Item = &'a Path>,
 {
-	let mut implementors_idents: Vec<Ident> = Vec::new();
-	let mut implementors_types_paths = Vec::new();
+	let mut implementors_idents = Vec::new();
+	let mut implementors_types_paths: Vec<Path> = Vec::new();
 	let mut implementors_introduced_generics = Vec::new();
 
 	for implementor in iter {
@@ -48,9 +48,15 @@ where
 
 		let implementor_ident_value = last_implementor_segment.ident.to_string().to_lowercase();
 
-		let ident_count = implementors_idents
+		let ident_count = implementors_types_paths
 			.iter()
-			.filter(|&ident| *ident == implementor_ident_value)
+			.filter(|implementor| {
+				implementor
+					.segments
+					.last()
+					.expect("At this point, implementors are valid paths; qed;") ==
+					last_implementor_segment
+			})
 			.count();
 
 		let ident = if ident_count > 0 {

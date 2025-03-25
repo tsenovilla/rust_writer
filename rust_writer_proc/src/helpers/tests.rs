@@ -45,16 +45,19 @@ fn resolve_implementors_for_struct_empty_iterator() {
 #[test]
 fn resolve_implementors_for_struct_duplicate_implementors() {
 	let item_struct: ItemStruct = parse_quote! {
-		struct Foo {}
+		struct Foo;
 	};
 
 	let path1: Path = parse_quote! { Bar };
 	let path2: Path = parse_quote! { Bar };
+	let path3: Path = parse_quote! { Bar };
 
-	let resolved = resolve_implementors_for_struct(vec![&path1, &path2].into_iter(), &item_struct);
+	let resolved =
+		resolve_implementors_for_struct(vec![&path1, &path2, &path3].into_iter(), &item_struct);
 
 	assert_eq!(resolved.implementors_idents[0].to_string(), "bar");
 	assert_eq!(resolved.implementors_idents[1].to_string(), "bar_1");
+	assert_eq!(resolved.implementors_idents[2].to_string(), "bar_2");
 }
 
 #[test]
