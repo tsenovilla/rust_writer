@@ -2,6 +2,8 @@
 
 use std::path::PathBuf;
 
+/// Doc
+use std::fs;
 
 mod SomeMod{
     enum A{

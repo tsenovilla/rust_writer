@@ -18,6 +18,19 @@ fn item_to_file_finder_find_item_if_present() {
 }
 
 #[test]
+fn item_to_file_finder_find_item_if_present_despite_docs() {
+	TestBuilder::default().with_file_ast().execute(|builder| {
+		let item: Item = parse_quote! { use std::fs; };
+
+		let item_to_file: ItemToFile = item.into();
+
+		let ast = builder.get_ref_ast_file("file.rs").expect("This exists; qed;");
+		let mut finder = Finder::default().to_find(&item_to_file);
+		assert!(finder.find(ast));
+	});
+}
+
+#[test]
 fn item_to_file_finder_cannot_find_item_if_not_present() {
 	TestBuilder::default().with_file_ast().execute(|builder| {
 		let item: Item = parse_quote! { fn non_existing_function() -> i32 { 0 } };

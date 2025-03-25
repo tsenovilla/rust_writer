@@ -51,6 +51,7 @@ use syn::{visit::Visit, File};
 pub struct EmptyFinder;
 
 /// The `Finder` struct is used to assert if a concrete element belongs to an AST.
+///
 /// The `Finder` struct is totally generic, so it can be thought of a game console: its purpose is
 /// to determine if an element is contained inside an AST but it doesn't know how to do it until an
 /// [implementor](https://docs.rs/rust_writer/latest/rust_writer/ast/implementors/index.html)
@@ -93,6 +94,16 @@ pub struct EmptyFinder;
 ///         assert!(finder.find(&ast));
 ///     });
 /// ```
+///
+/// The `Finder` struct doesn't take into account doc comments, this is, if the AST contains this
+/// item:
+///
+/// ```no_compile
+/// /// Some nice docs
+/// mod super_mod;
+/// ```
+///
+/// and the target element is `mod super_mod;`, the [`find`] method will return true.
 #[derive(Debug, Clone)]
 pub struct Finder<'a, T: Debug, const N: usize> {
 	/// A `Finder` can act in different parts of the AST at the same time. This array keeps track

@@ -166,6 +166,7 @@
 //!    macros to define a local implementor.
 
 pub mod finder;
+pub(crate) mod helpers;
 pub mod implementors;
 mod macros;
 pub mod mutator;

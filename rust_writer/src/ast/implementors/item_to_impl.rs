@@ -5,6 +5,7 @@ mod tests;
 
 use crate::ast::{
 	finder::{EmptyFinder, Finder, ToFind},
+	helpers,
 	mutator::{EmptyMutator, Mutator, ToMutate},
 };
 use syn::{visit::Visit, visit_mut::VisitMut, ImplItem, ItemImpl, PathSegment};
@@ -70,8 +71,12 @@ impl<'a> Visit<'a> for Finder<'a, ItemToImpl<'a>, 1> {
 			implementor_name: self.finder.implementor_name,
 		};
 		path_segment_finder.find_impl_paths(item_impl);
+		let self_item_impl_no_docs = helpers::item_without_docs(&self.finder.impl_item);
 		if path_segment_finder.found.iter().all(|&x| x) &&
-			item_impl.items.contains(&self.finder.impl_item)
+			item_impl
+				.items
+				.iter()
+				.any(|item_impl| helpers::item_without_docs(item_impl) == self_item_impl_no_docs)
 		{
 			self.found[0] = true;
 		}

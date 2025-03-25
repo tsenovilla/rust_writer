@@ -10,4 +10,7 @@ mod SomeMod{
     fn some_super_func(&self) -> bool{
         true
     }
+
+    /// Doc
+    trait SomeTrait{}
 }

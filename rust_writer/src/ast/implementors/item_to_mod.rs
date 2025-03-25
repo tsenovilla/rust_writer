@@ -5,6 +5,7 @@ mod tests;
 
 use crate::ast::{
 	finder::{EmptyFinder, Finder, ToFind},
+	helpers,
 	mutator::{EmptyMutator, Mutator, ToMutate},
 };
 use syn::{visit::Visit, visit_mut::VisitMut, Item, ItemMod};
@@ -32,9 +33,13 @@ impl<'a> ToFind<'a, ItemToMod<'a>, 1> for Finder<'a, EmptyFinder, 1> {
 
 impl<'a> Visit<'a> for Finder<'a, ItemToMod<'a>, 1> {
 	fn visit_item_mod(&mut self, item_mod: &'a ItemMod) {
+		let self_item_no_docs = helpers::item_without_docs(&self.finder.item);
 		match item_mod.content {
 			Some((_, ref items))
-				if item_mod.ident == self.finder.mod_name && items.contains(&self.finder.item) =>
+				if item_mod.ident == self.finder.mod_name &&
+					items
+						.iter()
+						.any(|item| helpers::item_without_docs(item) == self_item_no_docs) =>
 				self.found[0] = true,
 			_ => (),
 		}

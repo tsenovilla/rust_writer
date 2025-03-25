@@ -130,6 +130,20 @@ fn item_to_impl_with_trait_finder_find_item_if_present() {
 }
 
 #[test]
+fn item_to_impl_with_trait_finder_find_item_if_present_despite_comments() {
+	TestBuilder::default().with_impl_block_ast().execute(|builder| {
+		let item_to_impl_with_trait: ItemToImpl =
+			(Some("SomeTrait"), "SomeImplementor", ImplItem::Fn(parse_quote! { fn doc_func() {} }))
+				.into();
+
+		let ast = builder.get_ref_ast_file("impl_block.rs").expect("This exists; qed;");
+
+		let mut finder = Finder::default().to_find(&item_to_impl_with_trait);
+		assert!(finder.find(ast));
+	});
+}
+
+#[test]
 fn item_to_impl_with_trait_finder_cannot_find_item_if_trait_name_incorrect() {
 	TestBuilder::default().with_impl_block_ast().execute(|builder| {
 		let item_to_impl_with_trait: ItemToImpl = (

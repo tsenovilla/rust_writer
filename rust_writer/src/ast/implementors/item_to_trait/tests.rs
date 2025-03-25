@@ -19,6 +19,19 @@ fn item_to_trait_finder_find_item_if_present() {
 }
 
 #[test]
+fn item_to_trait_finder_find_item_if_present_despite_comments() {
+	TestBuilder::default().with_trait_ast().execute(|builder| {
+		let item_to_trait: ItemToTrait =
+			("MyTrait", TraitItem::Type(parse_quote! {type CommentedType: From<String>;})).into();
+
+		let ast = builder.get_ref_ast_file("trait.rs").expect("This exists; qed;");
+
+		let mut finder = Finder::default().to_find(&item_to_trait);
+		assert!(finder.find(ast));
+	});
+}
+
+#[test]
 fn item_to_trait_finder_cannot_find_item_if_trait_name_incorrect() {
 	TestBuilder::default().with_trait_ast().execute(|builder| {
 		let item_to_trait: ItemToTrait =

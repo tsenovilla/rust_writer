@@ -6,6 +6,9 @@ impl SomeTrait for SomeImplementor{
     fn some_func(&self) -> bool{
         true
     }
+
+    /// Doc
+    fn doc_func(){}
 }
 
 impl SomeImplementor{
