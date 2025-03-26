@@ -19,7 +19,7 @@ fn item_to_trait_finder_find_item_if_present() {
 }
 
 #[test]
-fn item_to_trait_finder_find_item_if_present_despite_comments() {
+fn item_to_trait_finder_find_item_if_present_despite_attrs() {
 	TestBuilder::default().with_trait_ast().execute(|builder| {
 		let item_to_trait: ItemToTrait =
 			("MyTrait", TraitItem::Type(parse_quote! {type CommentedType: From<String>;})).into();

@@ -130,11 +130,14 @@ fn item_to_impl_with_trait_finder_find_item_if_present() {
 }
 
 #[test]
-fn item_to_impl_with_trait_finder_find_item_if_present_despite_comments() {
+fn item_to_impl_with_trait_finder_find_item_if_present_despite_docs() {
 	TestBuilder::default().with_impl_block_ast().execute(|builder| {
-		let item_to_impl_with_trait: ItemToImpl =
-			(Some("SomeTrait"), "SomeImplementor", ImplItem::Fn(parse_quote! { fn doc_func() {} }))
-				.into();
+		let item_to_impl_with_trait: ItemToImpl = (
+			Some("SomeTrait"),
+			"SomeImplementor",
+			ImplItem::Fn(parse_quote! { fn func_with_attrs() {} }),
+		)
+			.into();
 
 		let ast = builder.get_ref_ast_file("impl_block.rs").expect("This exists; qed;");
 

@@ -5,12 +5,23 @@ mod tests;
 
 use crate::ast::{
 	finder::{EmptyFinder, Finder, ToFind},
-	helpers,
 	mutator::{EmptyMutator, Mutator, ToMutate},
 };
 use syn::{visit::Visit, visit_mut::VisitMut, Item, ItemMod};
 
 /// This implementor targets any item inside a module.
+///
+/// When it's used with [`Finder`], it doesn't take attributes into account, this is, if the
+/// following is contained in the target mod
+///
+/// ```no_compile
+/// /// Some nice docs
+/// #[some_attr]
+/// type Type = ();
+/// ```
+///
+/// and the target item is `type Type = ();`, the [`find`] method will return true. A major update
+/// will change this in the future, allowing to include attributes in the lookup if needed.
 #[derive(Debug, Clone)]
 pub struct ItemToMod<'a> {
 	/// The module's name.
@@ -33,13 +44,14 @@ impl<'a> ToFind<'a, ItemToMod<'a>, 1> for Finder<'a, EmptyFinder, 1> {
 
 impl<'a> Visit<'a> for Finder<'a, ItemToMod<'a>, 1> {
 	fn visit_item_mod(&mut self, item_mod: &'a ItemMod) {
-		let self_item_no_docs = helpers::item_without_docs(&self.finder.item);
+		let self_item_no_docs =
+			rustilities::parsing::attrs_mut::tt_without_attrs(&self.finder.item);
 		match item_mod.content {
 			Some((_, ref items))
 				if item_mod.ident == self.finder.mod_name &&
-					items
-						.iter()
-						.any(|item| helpers::item_without_docs(item) == self_item_no_docs) =>
+					items.iter().any(|item| {
+						rustilities::parsing::attrs_mut::tt_without_attrs(item) == self_item_no_docs
+					}) =>
 				self.found[0] = true,
 			_ => (),
 		}

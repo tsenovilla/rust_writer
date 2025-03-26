@@ -8,7 +8,8 @@ impl SomeTrait for SomeImplementor{
     }
 
     /// Doc
-    fn doc_func(){}
+    #[some_attr]
+    fn func_with_attrs(){}
 }
 
 impl SomeImplementor{

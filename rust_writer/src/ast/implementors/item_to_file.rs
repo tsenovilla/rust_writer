@@ -5,12 +5,23 @@ mod tests;
 
 use crate::ast::{
 	finder::{EmptyFinder, Finder, ToFind},
-	helpers,
 	mutator::{EmptyMutator, Mutator, ToMutate},
 };
 use syn::{visit::Visit, visit_mut::VisitMut, File, Item};
 
 /// This implementor targets any item inside a complete AST.
+///
+/// When it's used with [`Finder`], it doesn't take attributes into account, this is, if the
+/// following is contained in the target AST
+///
+/// ```no_compile
+/// /// Some nice docs
+/// #[some_attr]
+/// type Type = ();
+/// ```
+///
+/// and the target item is `type Type = ();`, the [`find`] method will return true. A major update
+/// will change this in the future, allowing to include attributes in the lookup if needed.
 #[derive(Debug, Clone)]
 pub struct ItemToFile {
 	pub item: Item,
@@ -30,12 +41,11 @@ impl<'a> ToFind<'a, ItemToFile, 1> for Finder<'a, EmptyFinder, 1> {
 
 impl<'a> Visit<'a> for Finder<'a, ItemToFile, 1> {
 	fn visit_file(&mut self, file: &'a File) {
-		let self_item_no_docs = helpers::item_without_docs(&self.finder.item);
-		if file
-			.items
-			.iter()
-			.any(|item| helpers::item_without_docs(item) == self_item_no_docs)
-		{
+		let self_item_no_docs =
+			rustilities::parsing::attrs_mut::tt_without_attrs(&self.finder.item);
+		if file.items.iter().any(|item| {
+			rustilities::parsing::attrs_mut::tt_without_attrs(item) == self_item_no_docs
+		}) {
 			self.found[0] = true;
 		}
 	}

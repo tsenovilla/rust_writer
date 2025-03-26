@@ -7,6 +7,7 @@ trait MyTrait{
     type Type2: AsRef<Path>;
 
     /// Doc
+    #[some_attr]
     type CommentedType: From<String>;
 
     fn my_fun() -> Self;

@@ -18,7 +18,7 @@ fn item_to_file_finder_find_item_if_present() {
 }
 
 #[test]
-fn item_to_file_finder_find_item_if_present_despite_docs() {
+fn item_to_file_finder_find_item_if_present_despite_attrs() {
 	TestBuilder::default().with_file_ast().execute(|builder| {
 		let item: Item = parse_quote! { use std::fs; };
 

@@ -18,7 +18,7 @@ syn = "2.0.100"
 thiserror = "2.0.11"
 quote = "1.0.38"
 regex = "1.11.1"
-rustilities = "2.1.0"
+rustilities = "2.2.0" 
 rust_writer = { path = "./rust_writer/" }
 test_builder = { path = "./test_builder/" }
 

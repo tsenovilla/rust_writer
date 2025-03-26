@@ -94,16 +94,6 @@ pub struct EmptyFinder;
 ///         assert!(finder.find(&ast));
 ///     });
 /// ```
-///
-/// The `Finder` struct doesn't take into account doc comments, this is, if the AST contains this
-/// item:
-///
-/// ```no_compile
-/// /// Some nice docs
-/// mod super_mod;
-/// ```
-///
-/// and the target element is `mod super_mod;`, the [`find`] method will return true.
 #[derive(Debug, Clone)]
 pub struct Finder<'a, T: Debug, const N: usize> {
 	/// A `Finder` can act in different parts of the AST at the same time. This array keeps track

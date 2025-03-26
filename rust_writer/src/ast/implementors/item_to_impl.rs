@@ -5,12 +5,22 @@ mod tests;
 
 use crate::ast::{
 	finder::{EmptyFinder, Finder, ToFind},
-	helpers,
 	mutator::{EmptyMutator, Mutator, ToMutate},
 };
 use syn::{visit::Visit, visit_mut::VisitMut, ImplItem, ItemImpl, PathSegment};
 
 /// This implementor targets an element inside an `impl block`
+/// When it's used with [`Finder`], it doesn't take attributes into account, this is, if the
+/// following is contained in the target impl block
+///
+/// ```no_compile
+/// /// Some nice docs
+/// #[some_attr]
+/// type Type = ();
+/// ```
+///
+/// and the target item is `type Type = ();`, the [`find`] method will return true. A major update
+/// will change this in the future, allowing to include attributes in the lookup if needed.
 #[derive(Debug, Clone)]
 pub struct ItemToImpl<'a> {
 	/// The trait's name lookup. If specified, the implementor will look inside `impl` blocks
@@ -71,13 +81,13 @@ impl<'a> Visit<'a> for Finder<'a, ItemToImpl<'a>, 1> {
 			implementor_name: self.finder.implementor_name,
 		};
 		path_segment_finder.find_impl_paths(item_impl);
-		let self_item_impl_no_docs = helpers::item_without_docs(&self.finder.impl_item);
+		let self_item_impl_no_docs =
+			rustilities::parsing::attrs_mut::tt_without_attrs(&self.finder.impl_item);
 		if path_segment_finder.found.iter().all(|&x| x) &&
-			item_impl
-				.items
-				.iter()
-				.any(|item_impl| helpers::item_without_docs(item_impl) == self_item_impl_no_docs)
-		{
+			item_impl.items.iter().any(|item_impl| {
+				rustilities::parsing::attrs_mut::tt_without_attrs(item_impl) ==
+					self_item_impl_no_docs
+			}) {
 			self.found[0] = true;
 		}
 	}

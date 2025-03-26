@@ -3,6 +3,7 @@
 use std::path::PathBuf;
 
 /// Doc
+#[some_attr]
 use std::fs;
 
 mod SomeMod{

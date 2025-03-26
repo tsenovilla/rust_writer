@@ -12,5 +12,6 @@ mod SomeMod{
     }
 
     /// Doc
+    #[some_attr]
     trait SomeTrait{}
 }

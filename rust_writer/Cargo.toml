@@ -12,7 +12,7 @@ documentation.workspace = true
 prettyplease = { workspace = true }
 proc-macro2 = { workspace = true }
 regex = { workspace = true }
-rust_writer_proc = "1.0.4"
+rust_writer_proc = "1.0.4" 
 rustilities = { workspace = true, features = ["parsing"] }
 syn = { workspace = true, features = ["full", "extra-traits", "visit", "visit-mut"] }
 thiserror = { workspace = true }
